@@ -105,11 +105,6 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 		</dependency>
-		<!-- Asynchronous programming -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webflux</artifactId>
-		</dependency>
 		<!--		&lt;!&ndash; JWT &ndash;&gt;-->
 		<!--		<dependency>-->
 		<!--			<groupId>com.auth0</groupId>-->
@@ -137,12 +132,6 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- Asynchronous Programming Test-->
-		<dependency>
-			<groupId>io.projectreactor</groupId>
-			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<!-- Database embedded -->
