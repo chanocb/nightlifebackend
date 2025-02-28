@@ -1,6 +1,7 @@
 package nightlifebackend.nightlife.adapters.postgresql.daos;
 
 import lombok.extern.log4j.Log4j2;
+import nightlifebackend.nightlife.adapters.postgresql.entities.UserEntity;
 import nightlifebackend.nightlife.domain.models.Role;
 import nightlifebackend.nightlife.domain.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +30,17 @@ public class DatabaseStarting {
 
     void initialize() {
         if (this.userRepository.findByRoleIn(List.of(Role.ADMIN)).isEmpty()) {
-            User user = new User(EMAIL,new BCryptPasswordEncoder().encode(PASSWORD),SUPER_USER,SUPER_USER,PHONE,BIRTHDAY,Role.ADMIN);
-            this.userRepository.save(user);
+            UserEntity adminUser = UserEntity.builder()
+                    .email(EMAIL)
+                    .password(new BCryptPasswordEncoder().encode(PASSWORD))
+                    .firstName(SUPER_USER)
+                    .lastName(SUPER_USER)
+                    .phone(PHONE)
+                    .birthDate(BIRTHDAY)
+                    .role(Role.ADMIN)
+                    .build();
+
+            this.userRepository.save(adminUser);
             log.warn("------- Created Admin -----------");
         }
     }

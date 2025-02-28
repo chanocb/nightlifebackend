@@ -1,6 +1,7 @@
 package nightlifebackend.nightlife.adapters.postgresql.daos;
 
 import lombok.extern.log4j.Log4j2;
+import nightlifebackend.nightlife.adapters.postgresql.entities.UserEntity;
 import nightlifebackend.nightlife.domain.models.Role;
 import nightlifebackend.nightlife.domain.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,14 +34,63 @@ public class UserSeederDev {
     }
     private void seedDataBase() {
         log.warn("------- Initial Load from JAVA -----------");
-        User[] users = {
-                new User("newuser1@example.com", new BCryptPasswordEncoder().encode("pass1"), "NewUser1", "LastName1", "1111111111", LocalDateTime.of(1995, 2, 15, 0, 0), Role.ADMIN),
-                new User("newuser2@example.com", new BCryptPasswordEncoder().encode("pass2"), "NewUser2", "LastName2", "2222222222", LocalDateTime.of(1998, 5, 20, 0, 0), Role.ADMIN),
-                new User("newuser3@example.com", new BCryptPasswordEncoder().encode("pass3"), "NewUser3", "LastName3", "3333333333", LocalDateTime.of(2000, 7, 10, 0, 0), Role.OWNER),
-                new User("newuser4@example.com", new BCryptPasswordEncoder().encode("pass4"), "NewUser4", "LastName4", "4444444444", LocalDateTime.of(1992, 3, 5, 0, 0), Role.OWNER),
-                new User("newuser5@example.com", new BCryptPasswordEncoder().encode("pass5"), "NewUser5", "LastName5", "5555555555", LocalDateTime.of(1997, 9, 25, 0, 0), Role.CLIENT),
-                new User("newuser6@example.com", new BCryptPasswordEncoder().encode("pass6"), "NewUser6", "LastName6", "6666666666", LocalDateTime.of(1993, 12, 30, 0, 0), Role.CLIENT)
+        UserEntity[] users = {
+                UserEntity.builder()
+                        .email("newuser1@example.com")
+                        .password(new BCryptPasswordEncoder().encode("pass1"))
+                        .firstName("NewUser1")
+                        .lastName("LastName1")
+                        .phone("1111111111")
+                        .birthDate(LocalDateTime.of(1995, 2, 15, 0, 0))
+                        .role(Role.ADMIN)
+                        .build(),
+                UserEntity.builder()
+                        .email("newuser2@example.com")
+                        .password(new BCryptPasswordEncoder().encode("pass2"))
+                        .firstName("NewUser2")
+                        .lastName("LastName2")
+                        .phone("2222222222")
+                        .birthDate(LocalDateTime.of(1998, 5, 20, 0, 0))
+                        .role(Role.ADMIN)
+                        .build(),
+                UserEntity.builder()
+                        .email("newuser3@example.com")
+                        .password(new BCryptPasswordEncoder().encode("pass3"))
+                        .firstName("NewUser3")
+                        .lastName("LastName3")
+                        .phone("3333333333")
+                        .birthDate(LocalDateTime.of(2000, 7, 10, 0, 0))
+                        .role(Role.OWNER)
+                        .build(),
+                UserEntity.builder()
+                        .email("newuser4@example.com")
+                        .password(new BCryptPasswordEncoder().encode("pass4"))
+                        .firstName("NewUser4")
+                        .lastName("LastName4")
+                        .phone("4444444444")
+                        .birthDate(LocalDateTime.of(1992, 3, 5, 0, 0))
+                        .role(Role.OWNER)
+                        .build(),
+                UserEntity.builder()
+                        .email("newuser5@example.com")
+                        .password(new BCryptPasswordEncoder().encode("pass5"))
+                        .firstName("NewUser5")
+                        .lastName("LastName5")
+                        .phone("5555555555")
+                        .birthDate(LocalDateTime.of(1997, 9, 25, 0, 0))
+                        .role(Role.CLIENT)
+                        .build(),
+                UserEntity.builder()
+                        .email("newuser6@example.com")
+                        .password(new BCryptPasswordEncoder().encode("pass6"))
+                        .firstName("NewUser6")
+                        .lastName("LastName6")
+                        .phone("6666666666")
+                        .birthDate(LocalDateTime.of(1993, 12, 30, 0, 0))
+                        .role(Role.CLIENT)
+                        .build()
         };
+
         this.userRepository.saveAll(Arrays.asList(users));
         log.warn("        ------- users");
     }
