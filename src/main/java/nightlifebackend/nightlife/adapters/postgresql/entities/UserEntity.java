@@ -6,8 +6,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import nightlifebackend.nightlife.domain.models.Role;
+import nightlifebackend.nightlife.domain.models.User;
+import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Builder
 @Data //@ToString, @EqualsAndHashCode, @Getter, @Setter, @RequiredArgsConstructor
@@ -29,4 +32,15 @@ public class UserEntity {
     private LocalDateTime birthDate;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public UserEntity(User user) {
+        BeanUtils.copyProperties(user, this);
+
+    }
+
+    public User toUser() {
+        User user = new User();
+        BeanUtils.copyProperties(this, user);
+        return user;
+    }
 }
