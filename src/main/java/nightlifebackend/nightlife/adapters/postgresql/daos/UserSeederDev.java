@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import nightlifebackend.nightlife.adapters.postgresql.entities.UserEntity;
 import nightlifebackend.nightlife.domain.models.Role;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
@@ -15,11 +16,13 @@ import java.util.Arrays;
 public class UserSeederDev {
     private final DatabaseStarting databaseStarting;
     private final UserRepository userRepository;
+    private String PASSWORD;
 
     @Autowired
-    public UserSeederDev(UserRepository userRepository, DatabaseStarting databaseStarting) {
+    public UserSeederDev(UserRepository userRepository, DatabaseStarting databaseStarting, @Value("${nightlife.password}") String PASSWORD) {
         this.userRepository = userRepository;
         this.databaseStarting = databaseStarting;
+        this.PASSWORD = PASSWORD;
         this.deleteAllAndInitializeAndSeedDataBase();
     }
 
@@ -37,14 +40,12 @@ public class UserSeederDev {
     private void seedDataBase() {
         log.warn("------- Initial Load from JAVA -----------");
 
-        String passwordTest = System.getenv("PASSWORD_TEST");
-
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String pass = new BCryptPasswordEncoder().encode(PASSWORD);
 
         UserEntity[] users = {
                 UserEntity.builder()
                         .email("newuser1@example.com")
-                        .password(passwordEncoder.encode(passwordTest))
+                        .password(pass)
                         .firstName("NewUser1")
                         .lastName("LastName1")
                         .phone("1111111111")
@@ -53,7 +54,7 @@ public class UserSeederDev {
                         .build(),
                 UserEntity.builder()
                         .email("newuser2@example.com")
-                        .password(passwordEncoder.encode(passwordTest))
+                        .password(pass)
                         .firstName("NewUser2")
                         .lastName("LastName2")
                         .phone("2222222222")
@@ -62,7 +63,7 @@ public class UserSeederDev {
                         .build(),
                 UserEntity.builder()
                         .email("newuser3@example.com")
-                        .password(passwordEncoder.encode(passwordTest))
+                        .password(pass)
                         .firstName("NewUser3")
                         .lastName("LastName3")
                         .phone("3333333333")
@@ -71,7 +72,7 @@ public class UserSeederDev {
                         .build(),
                 UserEntity.builder()
                         .email("newuser4@example.com")
-                        .password(passwordEncoder.encode(passwordTest))
+                        .password(pass)
                         .firstName("NewUser4")
                         .lastName("LastName4")
                         .phone("4444444444")
@@ -80,7 +81,7 @@ public class UserSeederDev {
                         .build(),
                 UserEntity.builder()
                         .email("newuser5@example.com")
-                        .password(passwordEncoder.encode(passwordTest))
+                        .password(pass)
                         .firstName("NewUser5")
                         .lastName("LastName5")
                         .phone("5555555555")
@@ -89,7 +90,7 @@ public class UserSeederDev {
                         .build(),
                 UserEntity.builder()
                         .email("newuser6@example.com")
-                        .password(passwordEncoder.encode(passwordTest))
+                        .password(pass)
                         .firstName("NewUser6")
                         .lastName("LastName6")
                         .phone("6666666666")

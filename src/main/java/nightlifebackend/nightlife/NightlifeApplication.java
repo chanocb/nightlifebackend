@@ -1,5 +1,7 @@
 package nightlifebackend.nightlife;
 
+import nightlifebackend.nightlife.adapters.postgresql.daos.DatabaseStarting;
+import nightlifebackend.nightlife.adapters.postgresql.daos.UserRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
