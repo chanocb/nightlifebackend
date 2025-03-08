@@ -9,6 +9,7 @@ import nightlifebackend.nightlife.domain.models.Role;
 import nightlifebackend.nightlife.domain.models.User;
 import org.springframework.beans.BeanUtils;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -29,7 +30,7 @@ public class UserEntity {
     private String firstName;
     private String lastName;
     private String phone;
-    private LocalDateTime birthDate;
+    private LocalDate birthDate;
     @Enumerated(EnumType.STRING)
     private Role role;
 

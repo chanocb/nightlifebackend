@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Arrays;
 
 @Log4j2
@@ -50,7 +50,7 @@ public class UserSeederDev {
                         .firstName("NewUser1")
                         .lastName("LastName1")
                         .phone("1111111111")
-                        .birthDate(LocalDateTime.of(1995, 2, 15, 0, 0))
+                        .birthDate(LocalDate.of(1995, 2, 15))
                         .role(Role.ADMIN)
                         .build(),
                 UserEntity.builder()
@@ -59,7 +59,7 @@ public class UserSeederDev {
                         .firstName("NewUser2")
                         .lastName("LastName2")
                         .phone("2222222222")
-                        .birthDate(LocalDateTime.of(1998, 5, 20, 0, 0))
+                        .birthDate(LocalDate.of(1998, 5, 20))
                         .role(Role.ADMIN)
                         .build(),
                 UserEntity.builder()
@@ -68,7 +68,7 @@ public class UserSeederDev {
                         .firstName("NewUser3")
                         .lastName("LastName3")
                         .phone("3333333333")
-                        .birthDate(LocalDateTime.of(2000, 7, 10, 0, 0))
+                        .birthDate(LocalDate.of(2000, 7, 10))
                         .role(Role.OWNER)
                         .build(),
                 UserEntity.builder()
@@ -77,7 +77,7 @@ public class UserSeederDev {
                         .firstName("NewUser4")
                         .lastName("LastName4")
                         .phone("4444444444")
-                        .birthDate(LocalDateTime.of(1992, 3, 5, 0, 0))
+                        .birthDate(LocalDate.of(1992, 3, 5))
                         .role(Role.OWNER)
                         .build(),
                 UserEntity.builder()
@@ -86,7 +86,7 @@ public class UserSeederDev {
                         .firstName("NewUser5")
                         .lastName("LastName5")
                         .phone("5555555555")
-                        .birthDate(LocalDateTime.of(1997, 9, 25, 0, 0))
+                        .birthDate(LocalDate.of(1997, 9, 25))
                         .role(Role.CLIENT)
                         .build(),
                 UserEntity.builder()
@@ -95,7 +95,7 @@ public class UserSeederDev {
                         .firstName("NewUser6")
                         .lastName("LastName6")
                         .phone("6666666666")
-                        .birthDate(LocalDateTime.of(1993, 12, 30, 0, 0))
+                        .birthDate(LocalDate.of(1993, 12, 30))
                         .role(Role.CLIENT)
                         .build()
         };

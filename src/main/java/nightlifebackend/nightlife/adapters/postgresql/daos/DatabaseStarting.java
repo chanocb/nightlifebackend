@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Log4j2
@@ -25,7 +24,7 @@ public class DatabaseStarting {
     private static final String EMAIL = "example@example.com";
     private String PASSWORD;
     private static final String PHONE = "1234";
-    private static final LocalDateTime BIRTHDAY = LocalDateTime.of(2000, 1, 1, 0, 0);
+    private static final LocalDate BIRTHDAY = LocalDate.of(2000, 1, 1);
 
     private final UserRepository userRepository;
 

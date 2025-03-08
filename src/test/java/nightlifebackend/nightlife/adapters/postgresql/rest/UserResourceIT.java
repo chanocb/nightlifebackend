@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 
@@ -30,7 +31,7 @@ public class UserResourceIT {
                         .phone("99999")
                         .firstName("Pepe")
                         .lastName("LL")
-                        .birthDate(LocalDateTime.of(1990, Month.JANUARY, 15, 0, 0))
+                        .birthDate(LocalDate.of(1990, Month.JANUARY, 15))
                         .role(Role.ADMIN)
                         .build();
         this.webTestClient
