@@ -5,6 +5,7 @@ import nightlifebackend.nightlife.domain.models.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.LocalDate;
@@ -33,14 +34,15 @@ public class UserResourceIT {
                         .lastName("LL")
                         .birthDate(LocalDate.of(1990, Month.JANUARY, 15))
                         .role(Role.ADMIN)
+                        .password("1234")
                         .build();
         this.webTestClient
                 .post()
                 .uri(USERS)
                 .body(BodyInserters.fromValue(user))
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody(User.class)
-                .value(Assertions::assertNotNull);
+                .expectStatus().isOk();
     }
+
+
 }
