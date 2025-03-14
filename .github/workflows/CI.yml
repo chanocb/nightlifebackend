@@ -17,8 +17,9 @@ jobs:
           java-version: 21
       - name: Unit & Integration Tests
         run: mvn -B verify # -B: --batch-mode
-          #env:
-        #JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PASSWORD_TEST: ${{ secrets.PASSWORD_TEST }}
 
       - name: Sonar
         if: success() # always() failure() success()
