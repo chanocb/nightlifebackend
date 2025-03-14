@@ -6,6 +6,7 @@ import nightlifebackend.nightlife.domain.models.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -40,8 +41,8 @@ public class UserSeederDev {
     private void seedDataBase() {
         log.warn("------- Initial Load from JAVA -----------");
 
-        //String pass = new BCryptPasswordEncoder().encode(PASSWORD);
-        String pass = PASSWORD;
+        String pass = new BCryptPasswordEncoder().encode(PASSWORD);
+        //String pass = PASSWORD;
 
         UserEntity[] users = {
                 UserEntity.builder()

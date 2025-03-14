@@ -23,4 +23,12 @@ public class UserPersistencePostgresql implements UserPersistence {
                 .save(new UserEntity(user))
                 .toUser();
     }
+
+    @Override
+    public User findByEmail(String email) {
+        return this.userRepository
+                .findByEmail(email)
+                .map(UserEntity::toUser)
+                .orElse(null);
+    }
 }

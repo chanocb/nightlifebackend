@@ -1,8 +1,11 @@
 package nightlifebackend.nightlife.adapters.postgresql.rest;
 
-import nightlifebackend.nightlife.domain.models.User;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.security.core.userdetails.User;
 import nightlifebackend.nightlife.domain.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,8 +24,16 @@ public class UserResource {
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
+    public String create(@RequestBody nightlifebackend.nightlife.domain.models.User user) {
         //user.doDefault();
         return this.userService.create(user);
+    }
+
+    @SecurityRequirement(name = "basicAuth")
+    @PreAuthorize("authenticated")
+    @PostMapping("/login")
+    public String login(@AuthenticationPrincipal User activeUser) {
+        //user.doDefault();
+        return this.userService.login(activeUser.getUsername());
     }
 }

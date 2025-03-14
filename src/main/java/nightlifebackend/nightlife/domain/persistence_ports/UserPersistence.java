@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 public interface UserPersistence {
 
     User create(User user);
+
+    User findByEmail(String email);
 }

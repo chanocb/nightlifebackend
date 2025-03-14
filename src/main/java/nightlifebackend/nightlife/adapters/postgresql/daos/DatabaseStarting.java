@@ -11,6 +11,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Profile;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -40,7 +41,7 @@ public class DatabaseStarting {
         if (this.userRepository.findByRoleIn(List.of(Role.ADMIN)).isEmpty()) {
             UserEntity adminUser = UserEntity.builder()
                     .email(EMAIL)
-                    .password(PASSWORD)
+                    .password(new BCryptPasswordEncoder().encode(PASSWORD))
                     .firstName(SUPER_USER)
                     .lastName(SUPER_USER)
                     .phone(PHONE)
