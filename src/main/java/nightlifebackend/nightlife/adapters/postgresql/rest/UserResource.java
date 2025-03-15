@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserResource {
 
     static final String USERS = "/users";
+    public static final String TOKEN = "/token";
 
     private final UserService userService;
     @Autowired
@@ -31,9 +32,8 @@ public class UserResource {
 
     @SecurityRequirement(name = "basicAuth")
     @PreAuthorize("authenticated")
-    @PostMapping("/login")
+    @PostMapping(value = TOKEN)
     public String login(@AuthenticationPrincipal User activeUser) {
-        //user.doDefault();
-        return this.userService.login(activeUser.getUsername());
+        return userService.login(activeUser.getUsername());
     }
 }
