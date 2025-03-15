@@ -35,7 +35,7 @@ public class RestClientTestService {
     public WebTestClient login(String email, WebTestClient webTestClient) {
         String tokenDto = webTestClient
                 .mutate().filter(basicAuthentication(email, "1234")).build()
-                .post().uri(UserResource.USERS + "/login")
+                .post().uri(UserResource.USERS + "/token")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(String.class)
