@@ -1,18 +1,15 @@
-package nightlifebackend.nightlife.adapters.postgresql.rest;
+package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
 import nightlifebackend.nightlife.domain.models.Role;
 import nightlifebackend.nightlife.domain.models.User;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 
-import static nightlifebackend.nightlife.adapters.postgresql.rest.UserResource.USERS;
+import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.UserResource.USERS;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.springframework.web.reactive.function.BodyInserters;

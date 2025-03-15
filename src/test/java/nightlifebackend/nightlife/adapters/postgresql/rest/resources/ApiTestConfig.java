@@ -1,4 +1,4 @@
-package nightlifebackend.nightlife.adapters.postgresql.rest;
+package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;

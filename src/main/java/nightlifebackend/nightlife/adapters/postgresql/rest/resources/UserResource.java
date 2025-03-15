@@ -1,6 +1,7 @@
-package nightlifebackend.nightlife.adapters.postgresql.rest;
+package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import nightlifebackend.nightlife.adapters.postgresql.rest.dtos.TokenDto;
 import org.springframework.security.core.userdetails.User;
 import nightlifebackend.nightlife.domain.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class UserResource {
     @SecurityRequirement(name = "basicAuth")
     @PreAuthorize("authenticated")
     @PostMapping(value = TOKEN)
-    public String login(@AuthenticationPrincipal User activeUser) {
-        return userService.login(activeUser.getUsername());
+    public TokenDto login(@AuthenticationPrincipal User activeUser) {
+        return new TokenDto(userService.login(activeUser.getUsername()));
     }
 }

@@ -1,4 +1,4 @@
-package nightlifebackend.nightlife.adapters.postgresql.rest;
+package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
 import lombok.Getter;
 import nightlifebackend.nightlife.domain.models.Role;
