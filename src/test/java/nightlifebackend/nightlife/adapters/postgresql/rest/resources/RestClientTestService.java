@@ -1,6 +1,7 @@
 package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
 import lombok.Getter;
+import nightlifebackend.nightlife.adapters.postgresql.rest.dtos.TokenDto;
 import nightlifebackend.nightlife.domain.models.Role;
 import nightlifebackend.nightlife.domain.services.JwtService;
 import org.junit.jupiter.api.Assertions;
@@ -33,16 +34,16 @@ public class RestClientTestService {
     }
 
     public WebTestClient login(String email, WebTestClient webTestClient) {
-        String tokenDto = webTestClient
+        TokenDto tokenDto = webTestClient
                 .mutate().filter(basicAuthentication(email, "1234")).build()
                 .post().uri(UserResource.USERS + "/token")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(String.class)
+                .expectBody(TokenDto.class)
                 .value(Assertions::assertNotNull)
                 .returnResult().getResponseBody();
         if (tokenDto != null) {
-            this.token = tokenDto;
+            this.token = tokenDto.getToken();
         }
         return webTestClient.mutate()
                 .defaultHeader("Authorization", "Bearer " + this.token).build();
