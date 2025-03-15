@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 import java.time.Month;
 
 import static nightlifebackend.nightlife.adapters.postgresql.rest.UserResource.USERS;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.springframework.web.reactive.function.BodyInserters;
 
 
@@ -42,6 +44,24 @@ public class UserResourceIT {
                 .body(BodyInserters.fromValue(user))
                 .exchange()
                 .expectStatus().isOk();
+    }
+
+    @Test
+    void testLoginAdmin() {
+        this.restClientTestService.loginAdmin(this.webTestClient);
+        assertTrue(this.restClientTestService.getToken().length() > 10);
+    }
+
+    @Test
+    void testLoginOwner() {
+        this.restClientTestService.loginOwner(this.webTestClient);
+        assertTrue(this.restClientTestService.getToken().length() > 10);
+    }
+
+    @Test
+    void testLoginClient() {
+        this.restClientTestService.loginClient(this.webTestClient);
+        assertTrue(this.restClientTestService.getToken().length() > 10);
     }
 
 
