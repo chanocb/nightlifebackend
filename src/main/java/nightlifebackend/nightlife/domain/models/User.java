@@ -18,27 +18,27 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class User {
 
-    @NotBlank(message = "El correo electrónico no puede estar vacío.")
-    @Email(message = "El correo electrónico debe tener un formato válido.")
+    @NotBlank(message = "The email cannot be empty.")
+    @Email(message = "The email must have a valid format.")
     private String email;
 
-    @NotBlank(message = "La contraseña no puede estar vacía.")
+    @NotBlank(message = "The password cannot be empty.")
     private String password;
 
-    @NotBlank(message = "El primer nombre no puede estar vacío.")
+    @NotBlank(message = "The first name cannot be empty.")
     private String firstName;
 
-    @NotBlank(message = "El apellido no puede estar vacío.")
+    @NotBlank(message = "The last name cannot be empty.")
     private String lastName;
 
-    @NotBlank(message = "El teléfono no puede estar vacío.")
-    @Pattern(regexp = "^[+]?[0-9]{1,4}[-\s]?[0-9]{1,15}$", message = "El teléfono debe tener un formato válido.")
+    @NotBlank(message = "The phone number cannot be empty.")
+    @Pattern(regexp = "^[+]?[0-9]{1,4}[-\s]?[0-9]{1,15}$", message = "The phone number must have a valid format.")
     private String phone;
 
-    @NotNull(message = "La fecha de nacimiento no puede ser nula.")
+    @NotNull(message = "The birth date cannot be null.")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate birthDate;
 
-    @NotNull(message = "El rol no puede ser nulo.")
+    @NotNull(message = "The role cannot be null.")
     private Role role;
 }
