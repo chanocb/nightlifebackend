@@ -19,14 +19,9 @@ public class UserService {
         this.jwtService = jwtService;
     }
 
-    public String create(User user) {
-        if (Stream.of(user.getEmail(), user.getFirstName(), user.getLastName(), user.getPassword()).anyMatch(e -> e == null || e.isEmpty()) || user.getRole() == null) {
-            throw new IllegalArgumentException("All fields are required");
-        }
+    public User create(User user) {
         user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-        User user1 = this.userPersistence.create(user);
-        return jwtService.createToken(user1.getEmail(), user1.getFirstName(), user1.getRole().name());
-
+        return this.userPersistence.create(user);
     }
 
     public String login(String email) {
