@@ -32,7 +32,7 @@ public class User {
     private String lastName;
 
     @NotBlank(message = "The phone number cannot be empty.")
-    @Pattern(regexp = "^[+]?[0-9]{1,4}[-\s]?[0-9]{1,15}$", message = "The phone number must have a valid format.")
+    @Pattern(regexp = "^[+]?[0-9]{0,4}[-\s]?[0-9]{9}$", message = "The phone number must have a valid format.")
     private String phone;
 
     @NotNull(message = "The birth date cannot be null.")

@@ -28,7 +28,7 @@ public class UserResourceIT {
     void testCreate() {
         User user =
                 User.builder().email("example1@example.com")
-                        .phone("99999")
+                        .phone("123456789")
                         .firstName("Pepe")
                         .lastName("LL")
                         .birthDate(LocalDate.of(1990, Month.JANUARY, 15))
@@ -41,6 +41,52 @@ public class UserResourceIT {
                 .body(BodyInserters.fromValue(user))
                 .exchange()
                 .expectStatus().isOk();
+    }
+
+    @Test
+    void testCreateWithDuplicateEmail() {
+        User user =
+                User.builder().email("duplicate@example.com")
+                        .phone("123456789")
+                        .firstName("Pepe")
+                        .lastName("LL")
+                        .birthDate(LocalDate.of(1990, Month.JANUARY, 15))
+                        .role(Role.ADMIN)
+                        .password("1234")
+                        .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(user))
+                .exchange()
+                .expectStatus().isOk();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(user))
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testCreateWithoutValidNumber() {
+        User user =
+                User.builder().email("example2@example.com")
+                        .phone("99999")
+                        .firstName("Pepe")
+                        .lastName("LL")
+                        .birthDate(LocalDate.of(1990, Month.JANUARY, 15))
+                        .role(Role.ADMIN)
+                        .password("1234")
+                        .build();
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(user))
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test
