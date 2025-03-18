@@ -109,6 +109,42 @@ public class UserResourceIT {
     }
 
     @Test
+    void testReadUserByEmail() {
+        User user = User.builder()
+                .email("testuser@example.com")
+                .phone("123456789")
+                .firstName("Test")
+                .lastName("User")
+                .birthDate(LocalDate.of(1990, Month.JANUARY, 15))
+                .role(Role.CLIENT)
+                .password("password")
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(user))
+                .exchange()
+                .expectStatus().isOk();
+
+        this.webTestClient
+                .get()
+                .uri(USERS + "/" + user.getEmail())
+                .headers(headers -> headers.setBasicAuth(user.getEmail(), user.getPassword()))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(User.class)
+                .value(response -> {
+                    assertEquals(user.getEmail(), response.getEmail());
+                    assertEquals(user.getFirstName(), response.getFirstName());
+                    assertEquals(user.getLastName(), response.getLastName());
+                    assertEquals(user.getPhone(), response.getPhone());
+                    assertEquals(user.getBirthDate(), response.getBirthDate());
+                    assertEquals(user.getRole(), response.getRole());
+                });
+    }
+
+    @Test
     void testUpdateUserByEmail() {
         User user = User.builder()
                 .email("update@example.com")

@@ -35,8 +35,9 @@ public class UserResource {
         return new TokenDto(userService.login(activeUser.getUsername()));
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/{email}")
-    @PreAuthorize("#email == authentication.principal")
+    @PreAuthorize("authenticated")
     public nightlifebackend.nightlife.domain.models.User readUserByEmail(@PathVariable String email) {
         return this.userService.readUserByEmail(email);
     }
