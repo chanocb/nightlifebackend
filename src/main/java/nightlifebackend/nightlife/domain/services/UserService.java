@@ -29,4 +29,14 @@ public class UserService {
         return jwtService.createToken(user.getEmail(), user.getFirstName(), user.getRole().name());
 
     }
+
+    public User readUserByEmail(String email) {
+        return this.userPersistence.findByEmail(email);
+
+    }
+
+    public User updateUserByEmail(String email, User user) {
+        return this.userPersistence.updateUser(email, user);
+
+    }
 }

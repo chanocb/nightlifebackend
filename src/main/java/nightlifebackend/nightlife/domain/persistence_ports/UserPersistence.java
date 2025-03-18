@@ -9,4 +9,6 @@ public interface UserPersistence {
     User create(User user);
 
     User findByEmail(String email);
+
+    User updateUser(String email, User user);
 }

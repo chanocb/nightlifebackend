@@ -31,4 +31,24 @@ public class UserPersistencePostgresql implements UserPersistence {
                 .map(UserEntity::toUser)
                 .orElse(null);
     }
+
+    @Override
+    public User updateUser(String email, User user) {
+        // Buscar la entidad existente para asegurarnos de que existe
+        UserEntity existingUserEntity = this.userRepository
+                .findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + user.getEmail()));
+
+        // Actualizar los campos de la entidad existente
+        existingUserEntity.setFirstName(user.getFirstName());
+        existingUserEntity.setLastName(user.getLastName());
+        existingUserEntity.setPhone(user.getPhone());
+        existingUserEntity.setBirthDate(user.getBirthDate());
+        existingUserEntity.setRole(user.getRole());
+
+        // Guardar y devolver el usuario actualizado
+        return this.userRepository
+                .save(existingUserEntity)
+                .toUser();
+    }
 }

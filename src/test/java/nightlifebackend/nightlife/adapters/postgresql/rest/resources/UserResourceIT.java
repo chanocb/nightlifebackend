@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.Month;
 
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.UserResource.USERS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.springframework.web.reactive.function.BodyInserters;
@@ -105,6 +106,50 @@ public class UserResourceIT {
     void testLoginClient() {
         this.restClientTestService.loginClient(this.webTestClient);
         assertTrue(this.restClientTestService.getToken().length() > 10);
+    }
+
+    @Test
+    void testUpdateUserByEmail() {
+        User user = User.builder()
+                .email("update@example.com")
+                .phone("123456789")
+                .firstName("Pepe")
+                .lastName("LL")
+                .birthDate(LocalDate.of(1990, Month.JANUARY, 15))
+                .role(Role.CLIENT)
+                .password("1234")
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(user))
+                .exchange()
+                .expectStatus().isOk();
+
+        User updatedUser = User.builder()
+                .email("update@example.com")
+                .phone("987654321")
+                .firstName("Jose")
+                .lastName("Lopez")
+                .birthDate(LocalDate.of(1995, Month.FEBRUARY, 20))
+                .role(Role.OWNER)
+                .password("newpass")
+                .build();
+
+        this.webTestClient
+                .put()
+                .uri(USERS + "/" + user.getEmail())
+                .body(BodyInserters.fromValue(updatedUser))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(User.class)
+                .value(response -> {
+                    assertEquals("Jose", response.getFirstName());
+                    assertEquals("Lopez", response.getLastName());
+                    assertEquals("987654321", response.getPhone());
+                    assertEquals(Role.OWNER, response.getRole());
+                });
     }
 
 

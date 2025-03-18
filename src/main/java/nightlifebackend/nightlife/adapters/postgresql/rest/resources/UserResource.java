@@ -7,10 +7,7 @@ import nightlifebackend.nightlife.domain.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 @RestController
@@ -36,5 +33,17 @@ public class UserResource {
     @PostMapping(value = TOKEN)
     public TokenDto login(@AuthenticationPrincipal User activeUser) {
         return new TokenDto(userService.login(activeUser.getUsername()));
+    }
+
+    @GetMapping("/{email}")
+    @PreAuthorize("#email == authentication.principal")
+    public nightlifebackend.nightlife.domain.models.User readUserByEmail(@PathVariable String email) {
+        return this.userService.readUserByEmail(email);
+    }
+
+    @SecurityRequirement(name = "bearerAuth")
+    @PutMapping("/{email}")
+    public nightlifebackend.nightlife.domain.models.User updateUserByEmail(@PathVariable String email, @Valid @RequestBody nightlifebackend.nightlife.domain.models.User user) {
+        return this.userService.updateUserByEmail(email, user);
     }
 }
