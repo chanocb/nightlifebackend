@@ -54,7 +54,7 @@ public class RestClientTestService {
     }
 
     public WebTestClient loginOwner(WebTestClient webTestClient) {
-        return this.login(Role.OWNER, "newuser5@example.com", webTestClient);
+        return this.login(Role.OWNER, "newuser4@example.com", webTestClient);
     }
 
     public WebTestClient loginClient(WebTestClient webTestClient) {
