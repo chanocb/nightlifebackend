@@ -43,4 +43,90 @@ public class VenueResourceIT {
                     assertEquals(venue.getInstagram(), createdVenue.getInstagram());
                 });
     }
+
+    @Test
+    void testFindAll() {
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .get()
+                .uri(VENUES)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class);
+    }
+
+    @Test
+    void testFindByReference() {
+        Venue venue = Venue.builder()
+                .name("example2")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .build();
+
+        Venue createdVenue = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .get()
+                .uri(VENUES + "/" + createdVenue.getReference())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .value(foundVenue -> {
+                    assertEquals(createdVenue.getReference(), foundVenue.getReference());
+                    assertEquals(createdVenue.getName(), foundVenue.getName());
+                    assertEquals(createdVenue.getPhone(), foundVenue.getPhone());
+                    assertEquals(createdVenue.getInstagram(), foundVenue.getInstagram());
+                    assertEquals(createdVenue.isLGTBFriendly(), foundVenue.isLGTBFriendly());
+                });
+    }
+
+    @Test
+    void testUpdate() {
+        Venue venue = Venue.builder()
+                .name("example3")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .build();
+
+        Venue createdVenue = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        Venue updatedVenue = Venue.builder()
+                .name("example3")
+                .phone("987654321")
+                .LGTBFriendly(false)
+                .instagram("instagram")
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .put()
+                .uri(VENUES + "/" + createdVenue.getReference())
+                .body(BodyInserters.fromValue(updatedVenue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .value(foundVenue -> {
+                    assertEquals(createdVenue.getReference(), foundVenue.getReference());
+                    assertEquals(updatedVenue.getName(), foundVenue.getName());
+                    assertEquals(updatedVenue.getPhone(), foundVenue.getPhone());
+                    assertEquals(updatedVenue.getInstagram(), foundVenue.getInstagram());
+                    assertEquals(updatedVenue.isLGTBFriendly(), foundVenue.isLGTBFriendly());
+                });
+    }
 }
