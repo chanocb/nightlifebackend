@@ -26,4 +26,6 @@ public class Venue {
     @JsonProperty("LGTBFriendly")
     private boolean LGTBFriendly;
     private String instagram;
+    @JsonProperty("user")
+    private User owner;
 }

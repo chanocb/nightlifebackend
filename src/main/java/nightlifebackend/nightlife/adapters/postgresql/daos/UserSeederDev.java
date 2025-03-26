@@ -2,6 +2,7 @@ package nightlifebackend.nightlife.adapters.postgresql.daos;
 
 import lombok.extern.log4j.Log4j2;
 import nightlifebackend.nightlife.adapters.postgresql.entities.UserEntity;
+import nightlifebackend.nightlife.adapters.postgresql.entities.VenueEntity;
 import nightlifebackend.nightlife.domain.models.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,12 +18,15 @@ import java.util.Arrays;
 public class UserSeederDev {
     private final DatabaseStarting databaseStarting;
     private final UserRepository userRepository;
+
+    private final VenueRepository venueRepository;
     private String PASSWORD;
 
     @Autowired
-    public UserSeederDev(UserRepository userRepository, DatabaseStarting databaseStarting, @Value("${nightlife.password}") String PASSWORD) {
+    public UserSeederDev(UserRepository userRepository, DatabaseStarting databaseStarting, VenueRepository venueRepository, @Value("${nightlife.password}") String PASSWORD) {
         this.userRepository = userRepository;
         this.databaseStarting = databaseStarting;
+        this.venueRepository = venueRepository;
         this.PASSWORD = PASSWORD;
         this.deleteAllAndInitializeAndSeedDataBase();
     }
@@ -33,6 +37,7 @@ public class UserSeederDev {
     }
 
     public void deleteAllAndInitialize() {
+        this.venueRepository.deleteAll();
         this.userRepository.deleteAll();
         log.warn("------- Deleted All -----------");
         this.databaseStarting.initialize();
@@ -100,8 +105,27 @@ public class UserSeederDev {
                         .role(Role.CLIENT)
                         .build()
         };
-
         this.userRepository.saveAll(Arrays.asList(users));
+
+        VenueEntity venue1 = VenueEntity.builder()
+                .name("Club 1")
+                .phone("1234567890")
+                .LGTBFriendly(true)
+                .instagram("club1_insta")
+                .owner(users[2])
+                .build();
+
+        VenueEntity venue2 = VenueEntity.builder()
+                .name("Club 2")
+                .phone("0987654321")
+                .LGTBFriendly(false)
+                .instagram("club2_insta")
+                .owner(users[3])
+                .build();
+
+        this.venueRepository.saveAll(Arrays.asList(venue1, venue2));
+
+        //this.userRepository.saveAll(Arrays.asList(users));
         log.warn("        ------- users seeded");
     }
 }

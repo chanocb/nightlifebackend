@@ -1,11 +1,14 @@
 package nightlifebackend.nightlife.adapters.postgresql.persistence;
 
 
+import nightlifebackend.nightlife.adapters.postgresql.daos.UserRepository;
 import nightlifebackend.nightlife.adapters.postgresql.daos.VenueRepository;
 import nightlifebackend.nightlife.adapters.postgresql.entities.UserEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.VenueEntity;
 import nightlifebackend.nightlife.domain.models.Venue;
 import nightlifebackend.nightlife.domain.persistence_ports.VenuePersistence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -16,17 +19,25 @@ import java.util.UUID;
 public class VenuePersistencePostgresql implements VenuePersistence {
 
     private final VenueRepository venueRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public VenuePersistencePostgresql(VenueRepository venueRepository) {
+    public VenuePersistencePostgresql(VenueRepository venueRepository, UserRepository userRepository) {
         this.venueRepository = venueRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     public Venue create(Venue venue) {
-        return this.venueRepository
-                .save(new VenueEntity(venue))
-                .toVenue();
+        if(venue.getOwner() != null){
+            UserEntity owner = userRepository.findByEmail(venue.getOwner().getEmail())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + venue.getOwner().getEmail()));
+
+            VenueEntity venueEntity = new VenueEntity(venue);
+            venueEntity.setOwner(owner);
+            return this.venueRepository.save(venueEntity).toVenue();
+        }
+        throw new RuntimeException("Owner cannot be null");
     }
 
     @Override

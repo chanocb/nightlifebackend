@@ -26,15 +26,25 @@ public class VenueEntity {
     @JsonProperty("LGTBFriendly")
     private boolean LGTBFriendly;
     private String instagram;
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false) // Relación con UserEntity
+    @JsonProperty("user")
+    private UserEntity owner;
 
     public VenueEntity(Venue venue) {
         BeanUtils.copyProperties(venue, this);
+        if (venue.getOwner() != null) {
+            this.owner = new UserEntity(venue.getOwner());
+        }
 
     }
 
     public Venue toVenue() {
         Venue venue = new Venue();
         BeanUtils.copyProperties(this, venue);
+        if (this.owner != null) {
+            venue.setOwner(this.owner.toUser());
+        }
         return venue;
     }
 }
