@@ -88,6 +88,37 @@ public class VenueResourceIT {
     }
 
     @Test
+    void testCreateVenueWithNonExistentOwnerThrowsException() {
+        User nonExistentOwner = User.builder()
+                .email("nonexistent@example.com")
+                .password("1234")
+                .firstName("Ghost")
+                .lastName("User")
+                .phone("000000000")
+                .birthDate(LocalDate.of(1990, 1, 1))
+                .role(Role.OWNER)
+                .build();
+
+        Venue venue = Venue.builder()
+                .name("Haunted Place")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("haunted_instagram")
+                .owner(nonExistentOwner)  // Asignar un owner que no existe en la base de datos
+                .build();
+
+        Venue createdVenue = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().is5xxServerError()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+    }
+
+    @Test
     void testFindAll() {
         this.restClientTestService.loginOwner(this.webTestClient)
                 .get()
