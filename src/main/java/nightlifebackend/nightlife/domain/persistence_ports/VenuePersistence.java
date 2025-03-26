@@ -16,4 +16,6 @@ public interface VenuePersistence {
     Venue findByReference(String reference);
 
     Venue update(String reference, Venue venue);
+
+    void deleteByReference(String reference);
 }

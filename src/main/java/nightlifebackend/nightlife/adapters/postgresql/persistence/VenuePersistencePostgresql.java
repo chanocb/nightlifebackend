@@ -72,4 +72,12 @@ public class VenuePersistencePostgresql implements VenuePersistence {
                 .save(existingVenueEntity)
                 .toVenue();
     }
+
+    @Override
+    public void deleteByReference(String reference) {
+        VenueEntity existingVenueEntity = this.venueRepository
+                .findByReference(UUID.fromString(reference))
+                .orElseThrow(() -> new RuntimeException("Local no encontrado con referencia: " + reference));
+        this.venueRepository.delete(existingVenueEntity);
+    }
 }

@@ -251,4 +251,67 @@ public class VenueResourceIT {
                     assertEquals(updatedVenue.getOwner().getEmail(), foundVenue.getOwner().getEmail()); // Verificar que el owner es el mismo
                 });
     }
+
+    @Test
+    void testDelete() {
+        // Crear un User propietario
+        User owner = User.builder()
+                .email("owner104@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        // Guardar el User en la base de datos
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Crear un Venue con el User guardado como propietario
+        Venue venue = Venue.builder()
+                .name("example_to_delete")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)  // Asignar el User guardado como propietario
+                .build();
+
+        // Guardar el Venue
+        Venue createdVenue = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        // Verificar que el Venue ha sido creado correctamente
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .get()
+                .uri(VENUES + "/" + createdVenue.getReference())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .value(foundVenue -> {
+                    assertEquals(createdVenue.getReference(), foundVenue.getReference());
+                    assertEquals(createdVenue.getName(), foundVenue.getName());
+                });
+
+        // Realizar la solicitud DELETE para eliminar el Venue
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .delete()
+                .uri(VENUES + "/" + createdVenue.getReference())
+                .exchange()
+                .expectStatus().isOk(); // Verificar que la solicitud DELETE ha sido exitosa
+
+
+    }
 }

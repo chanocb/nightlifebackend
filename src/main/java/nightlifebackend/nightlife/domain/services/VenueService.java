@@ -33,4 +33,8 @@ public class VenueService {
     public Venue update(String reference, Venue venue) {
         return this.venuePersistence.update(reference, venue);
     }
+
+    public void delete(String reference) {
+        this.venuePersistence.deleteByReference(reference);
+    }
 }

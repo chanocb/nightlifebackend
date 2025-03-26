@@ -43,4 +43,10 @@ public class VenueResource {
     public Venue updateVenue(@PathVariable String reference, @Valid @RequestBody Venue venue) {
         return this.venueService.update(reference, venue);
     }
+
+    @PreAuthorize("hasRole('OWNER')")
+    @DeleteMapping("/{reference}")
+    public void deleteVenue(@PathVariable String reference) {
+        this.venueService.delete(reference);
+    }
 }
