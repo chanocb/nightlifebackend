@@ -59,4 +59,12 @@ public class VenueService {
         }
         venuePersistence.deleteByReference(reference);
     }
+
+    public List<Venue> getVenuesByOwner(String email) {
+        String ownerEmail = jwtService.getAuthenticatedUserEmail();
+        if (!ownerEmail.equals(email)) {
+            throw new AccessDeniedException("You are not authorized to view this venue");
+        }
+        return venuePersistence.findByOwnerEmail(ownerEmail);
+    }
 }

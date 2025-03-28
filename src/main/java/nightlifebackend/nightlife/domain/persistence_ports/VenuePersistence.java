@@ -18,4 +18,6 @@ public interface VenuePersistence {
     Venue update(String reference, Venue venue);
 
     void deleteByReference(String reference);
+
+    List<Venue> findByOwnerEmail(String email);
 }

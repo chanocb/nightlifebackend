@@ -499,4 +499,173 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isForbidden();
     }
+
+    @Test
+    void testDeleteVenueNotFoundThrowsNotFound() {
+        // Crear un User propietario
+        User owner = User.builder()
+                .email("owner108@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        // Guardar el User en la base de datos
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Crear un Venue con el User guardado como propietario
+        Venue venue = Venue.builder()
+                .name("example_to_delete")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)  // Asignar el User guardado como propietario
+                .build();
+
+        // Guardar el Venue
+        Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        // Crear una referencia inexistente para simular que el Venue no fue encontrado
+        String nonexistentReference = UUID.randomUUID().toString(); // Generar un UUID válido
+
+        // Intentar eliminar el Venue con la referencia inexistente
+        this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .delete()
+                .uri(VENUES + "/" + nonexistentReference)
+                .exchange()
+                .expectStatus().isNotFound();  // Verificar que la respuesta sea 404 (Not Found)
+    }
+
+    @Test
+    void testGetVenueByOwner() {
+        // Crear un User propietario
+        User owner = User.builder()
+                .email("owner109@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        // Guardar el User en la base de datos
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Crear un Venue con el User guardado como propietario
+        Venue venue = Venue.builder()
+                .name("example_to_delete")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)
+                .build();
+
+        // Guardar el Venue
+        Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        // Intentar eliminar el Venue con el User no propietario
+        this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .get()
+                .uri(VENUES + "/owner?email=" + owner.getEmail())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class);
+    }
+    @Test
+    void testGetVenueByNonOwnerThrowsForbidden() {
+        // Crear un User propietario
+        User owner = User.builder()
+                .email("owner110@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        // Guardar el User en la base de datos
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Crear un Venue con el User guardado como propietario
+        Venue venue = Venue.builder()
+                .name("example_to_delete")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)
+                .build();
+
+        // Guardar el Venue
+        Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        // Crear un User no propietario
+        User nonOwner = User.builder()
+                .email("nonowner109@example.com")
+                .password("1234")
+                .firstName("Jane")
+                .lastName("Smith")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        // Guardar el User no propietario
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(nonOwner))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Intentar obtener los Venue con el User con el rol Owner
+        this.restClientTestService.login(nonOwner.getEmail(), this.webTestClient)
+                .get()
+                .uri(VENUES + "/owner?email=" + owner.getEmail())
+                .exchange()
+                .expectStatus().isForbidden();
+    }
 }

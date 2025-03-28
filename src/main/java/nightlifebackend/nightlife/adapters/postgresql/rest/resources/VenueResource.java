@@ -49,4 +49,10 @@ public class VenueResource {
     public void deleteVenue(@PathVariable String reference) {
         this.venueService.delete(reference);
     }
+
+    @PreAuthorize("hasRole('OWNER')")
+    @GetMapping("/owner")
+    public List<Venue> getVenuesByOwner(@RequestParam String email) {
+        return venueService.getVenuesByOwner(email);
+    }
 }

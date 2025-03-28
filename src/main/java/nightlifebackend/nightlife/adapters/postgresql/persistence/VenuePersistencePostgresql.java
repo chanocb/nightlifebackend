@@ -80,4 +80,13 @@ public class VenuePersistencePostgresql implements VenuePersistence {
                 .orElseThrow(() -> new RuntimeException("Local no encontrado con referencia: " + reference));
         this.venueRepository.delete(existingVenueEntity);
     }
+
+    @Override
+    public List<Venue> findByOwnerEmail(String email) {
+        return this.venueRepository
+                .findByOwnerEmail(email)
+                .stream()
+                .map(VenueEntity::toVenue)
+                .toList();
+    }
 }
