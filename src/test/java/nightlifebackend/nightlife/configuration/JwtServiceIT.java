@@ -1,10 +1,13 @@
 package nightlifebackend.nightlife.configuration;
 
 import nightlifebackend.nightlife.TestConfig;
-import nightlifebackend.nightlife.domain.models.Role;
 import nightlifebackend.nightlife.domain.services.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,5 +35,24 @@ public class JwtServiceIT {
         assertEquals("user-id", jwtService.user(token));
         assertEquals("name", jwtService.name(token));
         assertEquals("ROLE", jwtService.role(token));
+    }
+
+    @Test
+    void testGetAuthenticatedUserEmail_AuthenticationNull_ThrowsException() {
+        // Configurar SecurityContextHolder con autenticación nula
+        SecurityContextHolder.getContext().setAuthentication(null);
+
+        // Verificar que se lanza la excepción AccessDeniedException
+        assertThrows(AccessDeniedException.class, () -> jwtService.getAuthenticatedUserEmail());
+    }
+
+    @Test
+    void testGetAuthenticatedUserEmail_AuthenticationNotAuthenticated_ThrowsException() {
+        // Configurar SecurityContextHolder con autenticación no autenticada
+        Authentication authentication = new UsernamePasswordAuthenticationToken(null, null);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Verificar que se lanza la excepción AccessDeniedException
+        assertThrows(AccessDeniedException.class, () -> jwtService.getAuthenticatedUserEmail());
     }
 }

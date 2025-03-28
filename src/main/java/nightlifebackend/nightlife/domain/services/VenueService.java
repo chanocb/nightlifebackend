@@ -50,8 +50,12 @@ public class VenueService {
     public void delete(String reference) {
         String ownerEmail = jwtService.getAuthenticatedUserEmail();
         Venue venue = venuePersistence.findByReference(reference);
-        if (venue == null || !venue.getOwner().getEmail().equals(ownerEmail)) {
-            return;
+        if (venue == null) {
+            throw new NoSuchElementException("Venue not found with reference: " + reference);
+        }
+
+        if (!venue.getOwner().getEmail().equals(ownerEmail)) {
+            throw new AccessDeniedException("You are not authorized to delete this venue");
         }
         venuePersistence.deleteByReference(reference);
     }
