@@ -215,7 +215,7 @@ public class VenueResourceIT {
                 .build();
 
         // Guardar el Venue
-        Venue createdVenue = this.restClientTestService.loginOwner(this.webTestClient)
+        Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
                 .post()
                 .uri(VENUES)
                 .body(BodyInserters.fromValue(venue))
@@ -231,11 +231,11 @@ public class VenueResourceIT {
                 .phone("987654321")
                 .LGTBFriendly(false)
                 .instagram("new_instagram")
-                .owner(owner)  // Mantener el mismo propietario
+                .owner(createdVenue.getOwner())  // Mantener el mismo propietario
                 .build();
 
         // Actualizar el Venue
-        this.restClientTestService.loginOwner(this.webTestClient)
+        this.restClientTestService.login(owner.getEmail(), this.webTestClient)
                 .put()
                 .uri(VENUES + "/" + createdVenue.getReference())
                 .body(BodyInserters.fromValue(updatedVenue))
@@ -283,7 +283,7 @@ public class VenueResourceIT {
                 .build();
 
         // Guardar el Venue
-        Venue createdVenue = this.restClientTestService.loginOwner(this.webTestClient)
+        Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
                 .post()
                 .uri(VENUES)
                 .body(BodyInserters.fromValue(venue))
@@ -294,7 +294,7 @@ public class VenueResourceIT {
                 .getResponseBody();
 
         // Verificar que el Venue ha sido creado correctamente
-        this.restClientTestService.loginOwner(this.webTestClient)
+        this.restClientTestService.login(owner.getEmail(), this.webTestClient)
                 .get()
                 .uri(VENUES + "/" + createdVenue.getReference())
                 .exchange()
@@ -306,7 +306,7 @@ public class VenueResourceIT {
                 });
 
         // Realizar la solicitud DELETE para eliminar el Venue
-        this.restClientTestService.loginOwner(this.webTestClient)
+        this.restClientTestService.login(owner.getEmail(), this.webTestClient)
                 .delete()
                 .uri(VENUES + "/" + createdVenue.getReference())
                 .exchange()
