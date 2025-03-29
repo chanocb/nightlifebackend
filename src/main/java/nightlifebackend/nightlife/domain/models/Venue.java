@@ -28,4 +28,5 @@ public class Venue {
     private String instagram;
     @JsonProperty("user")
     private User owner;
+    private String imageUrl;
 }

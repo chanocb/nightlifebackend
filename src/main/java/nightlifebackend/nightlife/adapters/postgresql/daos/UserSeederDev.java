@@ -113,6 +113,7 @@ public class UserSeederDev {
                 .LGTBFriendly(true)
                 .instagram("club1_insta")
                 .owner(users[2])
+                .imageUrl("https://static.tumblr.com/5b25a0181dbd0b057fe53525233f5aa2/udkz9rq/B09n5vrlq/tumblr_static_2mxu4sctclussookgc8cg00cs_2048_v2.png")
                 .build();
 
         VenueEntity venue2 = VenueEntity.builder()
@@ -120,6 +121,7 @@ public class UserSeederDev {
                 .phone("0987654321")
                 .LGTBFriendly(false)
                 .instagram("club2_insta")
+                .imageUrl("https://static.tumblr.com/5b25a0181dbd0b057fe53525233f5aa2/udkz9rq/B09n5vrlq/tumblr_static_2mxu4sctclussookgc8cg00cs_2048_v2.png")
                 .owner(users[3])
                 .build();
 

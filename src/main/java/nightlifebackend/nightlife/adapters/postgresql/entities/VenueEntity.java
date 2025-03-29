@@ -30,6 +30,7 @@ public class VenueEntity {
     @JoinColumn(name = "owner_id", nullable = false) // Relación con UserEntity
     @JsonProperty("user")
     private UserEntity owner;
+    private String imageUrl;
 
     public VenueEntity(Venue venue) {
         BeanUtils.copyProperties(venue, this);
