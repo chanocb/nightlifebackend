@@ -30,6 +30,6 @@ public class Venue {
     @JsonProperty("user")
     private User owner;
     private String imageUrl;
-    @Valid
+    @JsonProperty("coordinate")
     private Coordinate coordinate;
 }
