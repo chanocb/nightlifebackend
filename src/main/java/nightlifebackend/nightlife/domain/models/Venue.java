@@ -1,6 +1,7 @@
 package nightlifebackend.nightlife.domain.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -29,4 +30,6 @@ public class Venue {
     @JsonProperty("user")
     private User owner;
     private String imageUrl;
+    @Valid
+    private Coordinate coordinate;
 }
