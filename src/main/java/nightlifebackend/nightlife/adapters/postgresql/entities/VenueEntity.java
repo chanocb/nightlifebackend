@@ -6,10 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nightlifebackend.nightlife.domain.models.Music;
 import nightlifebackend.nightlife.domain.models.Venue;
 import org.springframework.beans.BeanUtils;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Builder
 @Data
@@ -41,6 +45,14 @@ public class VenueEntity {
     @JoinColumn(name = "coordinate_id")
     private CoordinateEntity coordinate;
 
+    @ElementCollection(targetClass = Music.class)
+    @CollectionTable(
+            name = "venue_music",
+            joinColumns = @JoinColumn(name = "venue_id")
+    )
+    @Column(name = "enum_value")
+    private Set<MusicEntity> musicGenres = new HashSet<>();
+
     public VenueEntity(Venue venue) {
         BeanUtils.copyProperties(venue, this);
         if (venue.getOwner() != null) {
@@ -48,6 +60,11 @@ public class VenueEntity {
         }
         if (venue.getCoordinate() != null) {
             this.coordinate = new CoordinateEntity(venue.getCoordinate());
+        }
+        if (venue.getMusicGenres() != null) {
+            this.musicGenres = venue.getMusicGenres().stream()
+                    .map(music -> MusicEntity.valueOf(music.name()))  // Map Music from the domain enum
+                    .collect(java.util.stream.Collectors.toSet());
         }
     }
 
@@ -60,6 +77,10 @@ public class VenueEntity {
         if (this.coordinate != null) {
             venue.setCoordinate(this.coordinate.toCoordinate());
         }
+        venue.setMusicGenres(this.musicGenres.stream()
+                .map(MusicEntity::name)  // Convertir MusicEntity de vuelta a su valor en el enum
+                .map(Music::valueOf)
+                .collect(Collectors.toSet()));
         return venue;
     }
 }

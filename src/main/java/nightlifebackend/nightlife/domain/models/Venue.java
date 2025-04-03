@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -32,4 +33,6 @@ public class Venue {
     private String imageUrl;
     @JsonProperty("coordinate")
     private Coordinate coordinate;
+
+    private Set<Music> musicGenres;
 }
