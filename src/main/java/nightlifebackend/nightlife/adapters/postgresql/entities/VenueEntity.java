@@ -51,7 +51,7 @@ public class VenueEntity {
             joinColumns = @JoinColumn(name = "venue_id")
     )
     @Column(name = "enum_value")
-    private Set<MusicEntity> musicGenres = new HashSet<>();
+    private Set<Music> musicGenres = new HashSet<>();
 
     public VenueEntity(Venue venue) {
         BeanUtils.copyProperties(venue, this);
@@ -61,11 +61,7 @@ public class VenueEntity {
         if (venue.getCoordinate() != null) {
             this.coordinate = new CoordinateEntity(venue.getCoordinate());
         }
-        if (venue.getMusicGenres() != null) {
-            this.musicGenres = venue.getMusicGenres().stream()
-                    .map(music -> MusicEntity.valueOf(music.name()))  // Map Music from the domain enum
-                    .collect(java.util.stream.Collectors.toSet());
-        }
+        this.musicGenres = venue.getMusicGenres();
     }
 
     public Venue toVenue() {
@@ -77,10 +73,7 @@ public class VenueEntity {
         if (this.coordinate != null) {
             venue.setCoordinate(this.coordinate.toCoordinate());
         }
-        venue.setMusicGenres(this.musicGenres.stream()
-                .map(MusicEntity::name)  // Convertir MusicEntity de vuelta a su valor en el enum
-                .map(Music::valueOf)
-                .collect(Collectors.toSet()));
+        venue.setMusicGenres(this.musicGenres);
         return venue;
     }
 }
