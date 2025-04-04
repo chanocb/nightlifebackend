@@ -67,6 +67,8 @@ public class VenuePersistencePostgresql implements VenuePersistence {
         existingVenueEntity.setPhone(venue.getPhone());
         existingVenueEntity.setInstagram(venue.getInstagram());
         existingVenueEntity.setLGTBFriendly(venue.isLGTBFriendly());
+        existingVenueEntity.setImageUrl(venue.getImageUrl());
+        existingVenueEntity.setMusicGenres(venue.getMusicGenres());
 
         return this.venueRepository
                 .save(existingVenueEntity)
