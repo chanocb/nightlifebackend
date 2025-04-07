@@ -7,12 +7,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import nightlifebackend.nightlife.domain.models.Music;
+import nightlifebackend.nightlife.domain.models.Product;
 import nightlifebackend.nightlife.domain.models.Venue;
 import org.springframework.beans.BeanUtils;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Builder
@@ -53,6 +52,9 @@ public class VenueEntity {
     @Column(name = "enum_value")
     private Set<Music> musicGenres = new HashSet<>();
 
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductEntity> products = new ArrayList<>();
+
     public VenueEntity(Venue venue) {
         BeanUtils.copyProperties(venue, this);
         if (venue.getOwner() != null) {
@@ -62,6 +64,15 @@ public class VenueEntity {
             this.coordinate = new CoordinateEntity(venue.getCoordinate());
         }
         this.musicGenres = venue.getMusicGenres();
+        if (venue.getProducts() != null) {
+            this.products = venue.getProducts().stream()
+                    .map(product -> {
+                        ProductEntity productEntity = new ProductEntity(product);
+                        productEntity.setVenue(this);
+                        return productEntity;
+                    })
+                    .collect(Collectors.toList());
+        }
     }
 
     public Venue toVenue() {
@@ -74,6 +85,9 @@ public class VenueEntity {
             venue.setCoordinate(this.coordinate.toCoordinate());
         }
         venue.setMusicGenres(this.musicGenres);
+        venue.setProducts(this.products.stream()
+                .map(ProductEntity::toProduct)
+                .collect(Collectors.toList()));
         return venue;
     }
 }

@@ -3,6 +3,7 @@ package nightlifebackend.nightlife.adapters.postgresql.persistence;
 
 import nightlifebackend.nightlife.adapters.postgresql.daos.UserRepository;
 import nightlifebackend.nightlife.adapters.postgresql.daos.VenueRepository;
+import nightlifebackend.nightlife.adapters.postgresql.entities.ProductEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.UserEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.VenueEntity;
 import nightlifebackend.nightlife.domain.models.Venue;
@@ -69,6 +70,15 @@ public class VenuePersistencePostgresql implements VenuePersistence {
         existingVenueEntity.setLGTBFriendly(venue.isLGTBFriendly());
         existingVenueEntity.setImageUrl(venue.getImageUrl());
         existingVenueEntity.setMusicGenres(venue.getMusicGenres());
+
+        if (venue.getProducts() != null) {
+            existingVenueEntity.getProducts().clear();
+            venue.getProducts().forEach(product -> {
+                ProductEntity productEntity = new ProductEntity(product);
+                productEntity.setVenue(existingVenueEntity);
+                existingVenueEntity.getProducts().add(productEntity);
+            });
+        }
 
         return this.venueRepository
                 .save(existingVenueEntity)

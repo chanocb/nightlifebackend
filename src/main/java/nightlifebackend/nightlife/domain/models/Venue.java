@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,4 +36,6 @@ public class Venue {
     private Coordinate coordinate;
 
     private Set<Music> musicGenres;
+
+    private List<Product> products;
 }
