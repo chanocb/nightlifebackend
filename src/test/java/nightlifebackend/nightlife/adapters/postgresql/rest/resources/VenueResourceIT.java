@@ -1,6 +1,7 @@
 package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
 
+import nightlifebackend.nightlife.domain.models.Product;
 import nightlifebackend.nightlife.domain.models.Role;
 import nightlifebackend.nightlife.domain.models.User;
 import nightlifebackend.nightlife.domain.models.Venue;
@@ -10,11 +11,13 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.UserResource.USERS;
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.VenueResource.VENUES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @ApiTestConfig
@@ -62,12 +65,23 @@ public class VenueResourceIT {
                     assertEquals(owner.getRole(), response.getRole());
                 });
 
+        Product product1 = Product.builder()
+                .name("Jagger")
+                .price(5.0)
+                .build();
+
+        Product product2 = Product.builder()
+                .name("Tequila")
+                .price(12.0)
+                .build();
+
         Venue venue = Venue.builder()
                 .name("example1")
                 .phone("123456789")
                 .LGTBFriendly(true)
                 .instagram("instagram")
-                .owner(owner)  // Asignar el User como propietario
+                .owner(owner)
+                .products(List.of(product1, product2))
                 .build();
 
         this.restClientTestService.loginOwner(this.webTestClient)
@@ -82,7 +96,11 @@ public class VenueResourceIT {
                     assertEquals(venue.getPhone(), createdVenue.getPhone());
                     assertEquals(venue.isLGTBFriendly(), createdVenue.isLGTBFriendly());
                     assertEquals(venue.getInstagram(), createdVenue.getInstagram());
-                    assertEquals(venue.getOwner().getEmail(), createdVenue.getOwner().getEmail()); // Verificar el owner
+                    assertEquals(venue.getOwner().getEmail(), createdVenue.getOwner().getEmail());
+                    assertTrue(createdVenue.getProducts().stream()
+                            .anyMatch(p -> p.getName().equals("Jagger")));
+                    assertTrue(createdVenue.getProducts().stream()
+                            .anyMatch(p -> p.getName().equals("Tequila")));
                 });
     }
 
@@ -199,12 +217,18 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isOk();
 
+        Product product1 = Product.builder()
+                .name("Jagger")
+                .price(4.5)
+                .build();
+
         Venue venue = Venue.builder()
                 .name("example3")
                 .phone("123456789")
                 .LGTBFriendly(true)
                 .instagram("instagram")
                 .owner(owner)
+                .products(List.of(product1))
                 .build();
 
         Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
@@ -217,12 +241,23 @@ public class VenueResourceIT {
                 .returnResult()
                 .getResponseBody();
 
+        Product product2 = Product.builder()
+                .name("Gin Tonic")
+                .price(8.0)
+                .build();
+
+        Product product3 = Product.builder()
+                .name("Mojito")
+                .price(7.0)
+                .build();
+
         Venue updatedVenue = Venue.builder()
                 .name("updated_example3")
                 .phone("987654321")
                 .LGTBFriendly(false)
                 .instagram("new_instagram")
                 .owner(createdVenue.getOwner())
+                .products(List.of(product2, product3))
                 .build();
 
         this.restClientTestService.login(owner.getEmail(), this.webTestClient)
@@ -239,6 +274,10 @@ public class VenueResourceIT {
                     assertEquals(updatedVenue.getInstagram(), foundVenue.getInstagram());
                     assertEquals(updatedVenue.isLGTBFriendly(), foundVenue.isLGTBFriendly());
                     assertEquals(updatedVenue.getOwner().getEmail(), foundVenue.getOwner().getEmail());
+                    assertTrue(foundVenue.getProducts().stream()
+                            .anyMatch(p -> p.getName().equals("Gin Tonic")));
+                    assertTrue(foundVenue.getProducts().stream()
+                            .anyMatch(p -> p.getName().equals("Mojito")));
                 });
     }
 

@@ -6,6 +6,7 @@ import nightlifebackend.nightlife.adapters.postgresql.daos.VenueRepository;
 import nightlifebackend.nightlife.adapters.postgresql.entities.ProductEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.UserEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.VenueEntity;
+import nightlifebackend.nightlife.domain.models.Product;
 import nightlifebackend.nightlife.domain.models.Venue;
 import nightlifebackend.nightlife.domain.persistence_ports.VenuePersistence;
 import org.slf4j.Logger;
@@ -13,8 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository("venuePersistence")
 public class VenuePersistencePostgresql implements VenuePersistence {
@@ -73,11 +74,11 @@ public class VenuePersistencePostgresql implements VenuePersistence {
 
         if (venue.getProducts() != null) {
             existingVenueEntity.getProducts().clear();
-            venue.getProducts().forEach(product -> {
+            for (Product product : venue.getProducts()) {
                 ProductEntity productEntity = new ProductEntity(product);
                 productEntity.setVenue(existingVenueEntity);
                 existingVenueEntity.getProducts().add(productEntity);
-            });
+            }
         }
 
         return this.venueRepository
