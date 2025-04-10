@@ -1,10 +1,7 @@
 package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
 
-import nightlifebackend.nightlife.domain.models.Product;
-import nightlifebackend.nightlife.domain.models.Role;
-import nightlifebackend.nightlife.domain.models.User;
-import nightlifebackend.nightlife.domain.models.Venue;
+import nightlifebackend.nightlife.domain.models.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -221,6 +218,9 @@ public class VenueResourceIT {
                 .name("Jagger")
                 .price(4.5)
                 .build();
+        Coordinate coordinate = new Coordinate();
+        coordinate.setLatitude(51.0);
+        coordinate.setLongitude(12.0);
 
         Venue venue = Venue.builder()
                 .name("example3")
@@ -229,6 +229,7 @@ public class VenueResourceIT {
                 .instagram("instagram")
                 .owner(owner)
                 .products(List.of(product1))
+                .coordinate(coordinate)
                 .build();
 
         Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
@@ -250,6 +251,9 @@ public class VenueResourceIT {
                 .name("Mojito")
                 .price(7.0)
                 .build();
+        Coordinate coordinate2 = new Coordinate();
+        coordinate2.setLatitude(1.0);
+        coordinate2.setLongitude(1.0);
 
         Venue updatedVenue = Venue.builder()
                 .name("updated_example3")
@@ -258,6 +262,7 @@ public class VenueResourceIT {
                 .instagram("new_instagram")
                 .owner(createdVenue.getOwner())
                 .products(List.of(product2, product3))
+                .coordinate(coordinate2)
                 .build();
 
         this.restClientTestService.login(owner.getEmail(), this.webTestClient)
@@ -274,6 +279,7 @@ public class VenueResourceIT {
                     assertEquals(updatedVenue.getInstagram(), foundVenue.getInstagram());
                     assertEquals(updatedVenue.isLGTBFriendly(), foundVenue.isLGTBFriendly());
                     assertEquals(updatedVenue.getOwner().getEmail(), foundVenue.getOwner().getEmail());
+                    assertEquals(updatedVenue.getCoordinate().getLatitude(), foundVenue.getCoordinate().getLatitude());
                     assertTrue(foundVenue.getProducts().stream()
                             .anyMatch(p -> p.getName().equals("Gin Tonic")));
                     assertTrue(foundVenue.getProducts().stream()
