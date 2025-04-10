@@ -40,8 +40,7 @@ public class VenueEntity {
 
     private String imageUrl;
 
-    @OneToOne
-    @JoinColumn(name = "coordinate_id")
+    @OneToOne(cascade = CascadeType.ALL)
     private CoordinateEntity coordinate;
 
     @ElementCollection(targetClass = Music.class)
