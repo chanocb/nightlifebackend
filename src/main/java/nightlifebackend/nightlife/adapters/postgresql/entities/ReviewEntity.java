@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import nightlifebackend.nightlife.domain.models.Review;
+import org.springframework.beans.BeanUtils;
 
 import java.util.UUID;
 
@@ -28,4 +30,15 @@ public class ReviewEntity {
 
     @ManyToOne
     private VenueEntity venue;
+
+    public ReviewEntity(Review review){
+        BeanUtils.copyProperties(review, this);
+
+    }
+
+    public Review toReview(){
+        Review review = new Review();
+        BeanUtils.copyProperties(this, review);
+        return review;
+    }
 }
