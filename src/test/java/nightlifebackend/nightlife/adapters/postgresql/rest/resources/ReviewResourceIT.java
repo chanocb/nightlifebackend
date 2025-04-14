@@ -27,7 +27,7 @@ public class ReviewResourceIT {
     @Test
     void testCreate() {
         User owner = User.builder()
-                .email("owner100@example.com")
+                .email("owner1001@example.com")
                 .password("1234")
                 .firstName("John")
                 .lastName("Doe")
@@ -81,7 +81,7 @@ public class ReviewResourceIT {
                             .anyMatch(p -> p.getName().equals("Tequila")));
                 });
         User client = User.builder()
-                .email("client100@example.com")
+                .email("client1001@example.com")
                 .password("1234")
                 .firstName("John")
                 .lastName("Doe")
