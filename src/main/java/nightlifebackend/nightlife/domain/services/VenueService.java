@@ -31,6 +31,9 @@ public class VenueService {
     public Venue findByReference(String reference) {
         return this.venuePersistence.findByReference(reference);
     }
+    public List<Venue> findByName(String name) {
+        return this.venuePersistence.findByName(name);
+    }
 
     public Venue update(String reference, Venue venue) {
         String ownerEmail = jwtService.getAuthenticatedUserEmail();

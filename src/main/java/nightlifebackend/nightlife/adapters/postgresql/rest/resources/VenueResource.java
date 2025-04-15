@@ -37,7 +37,10 @@ public class VenueResource {
     public Venue getVenueByReference(@PathVariable String reference) {
         return this.venueService.findByReference(reference);
     }
-
+    @GetMapping("/name/{name}")
+    public List<Venue> getVenuesByName(@PathVariable String name) {
+        return this.venueService.findByName(name);
+    }
     @PreAuthorize("hasRole('OWNER')")
     @PutMapping("/{reference}")
     public Venue updateVenue(@PathVariable String reference, @Valid @RequestBody Venue venue) {

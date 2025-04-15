@@ -5,6 +5,9 @@ import nightlifebackend.nightlife.domain.persistence_ports.ReviewPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.UUID;
+
 @Service
 public class ReviewService {
 
@@ -19,5 +22,9 @@ public class ReviewService {
 
     public Review create(Review review) {
         return this.reviewPersistence.create(review);
+    }
+
+    public List<Review> findByVenueReference(UUID reference) {
+        return this.reviewPersistence.findByVenueReference(reference);
     }
 }

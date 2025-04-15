@@ -141,7 +141,49 @@ public class VenueResourceIT {
                 .expectStatus().isOk()
                 .expectBodyList(Venue.class);
     }
+    @Test
+    void testFindbyName() {
+        User owner = User.builder()
+                .email("owner10053@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+        Venue venue = Venue.builder()
+                .name("Mystery Place")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("haunted_instagram")
+                .owner(owner)
+                .build();
 
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class);
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .get()
+                .uri(VENUES+"/name/"+venue.getName())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class).value(venues -> {
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals(venue.getName())));
+                    assertTrue(venues.size() == 1);
+                });
+    }
     @Test
     void testFindByReference() {
         User owner = User.builder()

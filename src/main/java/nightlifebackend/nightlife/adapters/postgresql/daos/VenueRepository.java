@@ -11,5 +11,6 @@ import java.util.UUID;
 public interface VenueRepository extends JpaRepository<VenueEntity, UUID> {
 
     Optional<VenueEntity> findByReference(UUID reference);
+    List<VenueEntity> findByName(String name);
     List<VenueEntity> findByOwnerEmail(String ownerEmail);
 }

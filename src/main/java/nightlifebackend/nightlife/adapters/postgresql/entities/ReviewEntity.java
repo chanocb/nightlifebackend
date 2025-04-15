@@ -39,6 +39,8 @@ public class ReviewEntity {
     public Review toReview(){
         Review review = new Review();
         BeanUtils.copyProperties(this, review);
+        review.setUser(this.user.toUser());
+        review.setVenue(this.venue.toVenue());
         return review;
     }
 }

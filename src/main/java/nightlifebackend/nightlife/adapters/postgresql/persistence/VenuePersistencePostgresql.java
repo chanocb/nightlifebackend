@@ -61,6 +61,13 @@ public class VenuePersistencePostgresql implements VenuePersistence {
     }
 
     @Override
+    public List<Venue> findByName(String name) {
+       return this.venueRepository
+                .findByName(name).stream().map(VenueEntity::toVenue)
+               .collect(Collectors.toList());
+    }
+
+    @Override
     public Venue update(String reference, Venue venue) {
         VenueEntity existingVenueEntity = this.venueRepository
                 .findByReference(UUID.fromString(reference))

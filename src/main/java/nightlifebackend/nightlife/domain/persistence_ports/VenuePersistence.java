@@ -14,6 +14,7 @@ public interface VenuePersistence {
     List<Venue> findAll();
 
     Venue findByReference(String reference);
+    List<Venue> findByName(String name);
 
     Venue update(String reference, Venue venue);
 
