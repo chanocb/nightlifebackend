@@ -94,9 +94,9 @@ public class ReviewResourceIT {
                 .expectBodyList(Review.class)
                 .value(reviews -> {
                     assertEquals(1, reviews.size());
-                    assertEquals("This is a review", reviews.get(0).getOpinion());
-                    assertEquals(5, reviews.get(0).getRating());
-                    assertEquals("titulo", reviews.get(0).getTitle());
+                    assertEquals(opinion, reviews.get(0).getOpinion());
+                    assertEquals(rating, reviews.get(0).getRating());
+                    assertEquals(title, reviews.get(0).getTitle());
                     assertEquals(client.getEmail(), reviews.get(0).getUser().getEmail());
                     assertEquals(venue_created.getReference(), reviews.get(0).getVenue().getReference());
                 });

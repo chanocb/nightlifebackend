@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.UserResource.USERS;
@@ -601,5 +602,424 @@ public class VenueResourceIT {
                 .uri(VENUES + "/owner?email=" + owner.getEmail())
                 .exchange()
                 .expectStatus().isForbidden();
+    }
+
+    @Test
+    void testFindByLGTBFriendly() {
+        User owner = User.builder()
+                .email("owner200@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Create LGTBFriendly venue
+        Venue venue1 = Venue.builder()
+                .name("LGTB Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)
+                .musicGenres(Set.of(Music.POP))
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue1))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Create non-LGTBFriendly venue
+        Venue venue2 = Venue.builder()
+                .name("Regular Venue")
+                .phone("123456789")
+                .LGTBFriendly(false)
+                .instagram("instagram")
+                .owner(owner)
+                .musicGenres(Set.of(Music.ROCK))
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue2))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Test LGTBFriendly filter
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(VENUES + "/filter/lgtb-friendly/true")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class)
+                .value(venues -> {
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("LGTB Venue")));
+                    assertTrue(venues.stream().noneMatch(v -> v.getName().equals("Regular Venue")));
+                });
+
+        // Test non-LGTBFriendly filter
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(VENUES + "/filter/lgtb-friendly/false")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class)
+                .value(venues -> {
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("Regular Venue")));
+                    assertTrue(venues.stream().noneMatch(v -> v.getName().equals("LGTB Venue")));
+                });
+    }
+
+    @Test
+    void testFindByMusicGenres() {
+        User owner = User.builder()
+                .email("owner201@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Create venues with different music genres
+        Venue popVenue = Venue.builder()
+                .name("Pop Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)
+                .musicGenres(Set.of(Music.POP))
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(popVenue))
+                .exchange()
+                .expectStatus().isOk();
+
+        Venue rockVenue = Venue.builder()
+                .name("Rock Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)
+                .musicGenres(Set.of(Music.ROCK))
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(rockVenue))
+                .exchange()
+                .expectStatus().isOk();
+
+        Venue mixedVenue = Venue.builder()
+                .name("Mixed Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)
+                .musicGenres(Set.of(Music.POP, Music.ROCK))
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(mixedVenue))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Test single genre filter
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(VENUES + "/filter/music-genres?musicGenres=POP")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class)
+                .value(venues -> {
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("Pop Venue")));
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("Mixed Venue")));
+                    assertTrue(venues.stream().noneMatch(v -> v.getName().equals("Rock Venue")));
+                });
+
+        // Test multiple genres filter
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(VENUES + "/filter/music-genres?musicGenres=POP,ROCK")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class)
+                .value(venues -> {
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("Mixed Venue")));
+                    assertTrue(venues.stream().noneMatch(v -> v.getName().equals("Pop Venue")));
+                    assertTrue(venues.stream().noneMatch(v -> v.getName().equals("Rock Venue")));
+                });
+    }
+
+    @Test
+    void testFindByAverageRating() {
+        User owner = User.builder()
+                .email("owner202@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        User client1 = User.builder()
+                .email("client202@example.com")
+                .password("1234")
+                .firstName("Jane")
+                .lastName("Smith")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.CLIENT)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(client1))
+                .exchange()
+                .expectStatus().isOk();
+
+        User client2 = User.builder()
+                .email("client203@example.com")
+                .password("1234")
+                .firstName("Bob")
+                .lastName("Johnson")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.CLIENT)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(client2))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Create venues
+        Venue highRatedVenue = Venue.builder()
+                .name("High Rated Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)
+                .musicGenres(Set.of(Music.POP))
+                .build();
+
+        Venue createdHighRatedVenue = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(highRatedVenue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        Venue lowRatedVenue = Venue.builder()
+                .name("Low Rated Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)
+                .musicGenres(Set.of(Music.ROCK))
+                .build();
+
+        Venue createdLowRatedVenue = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(lowRatedVenue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        // Add reviews
+        Review review1 = Review.builder()
+                .title("Great place")
+                .opinion("Amazing venue")
+                .rating(5)
+                .user(client1)
+                .venue(createdHighRatedVenue)
+                .build();
+
+        this.restClientTestService.loginClient(this.webTestClient)
+                .post()
+                .uri(ReviewResource.REVIEWS)
+                .body(BodyInserters.fromValue(review1))
+                .exchange()
+                .expectStatus().isOk();
+
+        Review review2 = Review.builder()
+                .title("Good place")
+                .opinion("Nice venue")
+                .rating(4)
+                .user(client2)
+                .venue(createdHighRatedVenue)
+                .build();
+
+        this.restClientTestService.loginClient(this.webTestClient)
+                .post()
+                .uri(ReviewResource.REVIEWS)
+                .body(BodyInserters.fromValue(review2))
+                .exchange()
+                .expectStatus().isOk();
+
+        Review review3 = Review.builder()
+                .title("Average place")
+                .opinion("Ok venue")
+                .rating(3)
+                .user(client1)
+                .venue(createdLowRatedVenue)
+                .build();
+
+        this.restClientTestService.loginClient(this.webTestClient)
+                .post()
+                .uri(ReviewResource.REVIEWS)
+                .body(BodyInserters.fromValue(review3))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Test rating filter
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(VENUES + "/filter/rating/4.5")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class)
+                .value(venues -> {
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("High Rated Venue")));
+                    assertTrue(venues.stream().noneMatch(v -> v.getName().equals("Low Rated Venue")));
+                });
+
+        // Test lower rating filter
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(VENUES + "/filter/rating/3.0")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class)
+                .value(venues -> {
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("High Rated Venue")));
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("Low Rated Venue")));
+                });
+    }
+
+    @Test
+    void testFindByProductNameAndMaxPrice() {
+        User owner = User.builder()
+                .email("owner203@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Create venues with different products
+        Venue cheapBeerVenue = Venue.builder()
+                .name("Cheap Beer Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)
+                .products(List.of(
+                        Product.builder().name("Beer").price(2.5).build(),
+                        Product.builder().name("Coke").price(1.5).build()
+                ))
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(cheapBeerVenue))
+                .exchange()
+                .expectStatus().isOk();
+
+        Venue expensiveBeerVenue = Venue.builder()
+                .name("Expensive Beer Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("instagram")
+                .owner(owner)
+                .products(List.of(
+                        Product.builder().name("Beer").price(4.5).build(),
+                        Product.builder().name("Wine").price(8.0).build()
+                ))
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(expensiveBeerVenue))
+                .exchange()
+                .expectStatus().isOk();
+
+        // Test filter for cheap beer
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(VENUES + "/filter/product?productName=Beer&maxPrice=3.0")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class)
+                .value(venues -> {
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("Cheap Beer Venue")));
+                    assertTrue(venues.stream().noneMatch(v -> v.getName().equals("Expensive Beer Venue")));
+                });
+
+        // Test filter for more expensive beer
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(VENUES + "/filter/product?productName=Beer&maxPrice=5.0")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class)
+                .value(venues -> {
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("Cheap Beer Venue")));
+                    assertTrue(venues.stream().anyMatch(v -> v.getName().equals("Expensive Beer Venue")));
+                });
     }
 }

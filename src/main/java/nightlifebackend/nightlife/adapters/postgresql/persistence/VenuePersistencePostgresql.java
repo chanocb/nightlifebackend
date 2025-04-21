@@ -7,6 +7,7 @@ import nightlifebackend.nightlife.adapters.postgresql.entities.CoordinateEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.ProductEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.UserEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.VenueEntity;
+import nightlifebackend.nightlife.domain.models.Music;
 import nightlifebackend.nightlife.domain.models.Product;
 import nightlifebackend.nightlife.domain.models.Venue;
 import nightlifebackend.nightlife.domain.persistence_ports.VenuePersistence;
@@ -110,5 +111,29 @@ public class VenuePersistencePostgresql implements VenuePersistence {
                 .stream()
                 .map(VenueEntity::toVenue)
                 .toList();
+    }
+
+    public List<Venue> findByLGTBFriendly(boolean LGTBFriendly) {
+        return this.venueRepository.findByLGTBFriendly(LGTBFriendly).stream()
+                .map(VenueEntity::toVenue)
+                .collect(Collectors.toList());
+    }
+
+    public List<Venue> findByMusicGenres(Set<Music> musicGenres) {
+        return this.venueRepository.findByMusicGenres(musicGenres, musicGenres.size()).stream()
+                .map(VenueEntity::toVenue)
+                .collect(Collectors.toList());
+    }
+
+    public List<Venue> findByAverageRatingGreaterThanEqual(double minRating) {
+        return this.venueRepository.findByAverageRatingGreaterThanEqual(minRating).stream()
+                .map(VenueEntity::toVenue)
+                .collect(Collectors.toList());
+    }
+
+    public List<Venue> findByProductNameAndMaxPrice(String productName, double maxPrice) {
+        return this.venueRepository.findByProductNameAndMaxPrice(productName, maxPrice).stream()
+                .map(VenueEntity::toVenue)
+                .collect(Collectors.toList());
     }
 }

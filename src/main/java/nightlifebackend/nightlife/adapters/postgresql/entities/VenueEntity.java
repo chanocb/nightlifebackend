@@ -49,9 +49,11 @@ public class VenueEntity {
             joinColumns = @JoinColumn(name = "venue_id")
     )
     @Column(name = "enum_value")
+    @Builder.Default
     private Set<Music> musicGenres = new HashSet<>();
 
     @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<ProductEntity> products = new ArrayList<>();
 
     public VenueEntity(Venue venue) {
@@ -84,9 +86,13 @@ public class VenueEntity {
             venue.setCoordinate(this.coordinate.toCoordinate());
         }
         venue.setMusicGenres(this.musicGenres);
-        venue.setProducts(this.products.stream()
-                .map(ProductEntity::toProduct)
-                .collect(Collectors.toList()));
+        if (this.products != null) {
+            venue.setProducts(this.products.stream()
+                    .map(ProductEntity::toProduct)
+                    .collect(Collectors.toList()));
+        } else {
+            venue.setProducts(new ArrayList<>());
+        }
         return venue;
     }
 }

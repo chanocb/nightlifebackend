@@ -1,6 +1,7 @@
 package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
 import jakarta.validation.Valid;
+import nightlifebackend.nightlife.domain.models.Music;
 import nightlifebackend.nightlife.domain.models.Venue;
 import nightlifebackend.nightlife.domain.services.VenueService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -57,5 +59,25 @@ public class VenueResource {
     @GetMapping("/owner")
     public List<Venue> getVenuesByOwner(@RequestParam String email) {
         return venueService.getVenuesByOwner(email);
+    }
+
+    @GetMapping("/filter/lgtb-friendly/{LGTBFriendly}")
+    public List<Venue> findByLGTBFriendly(@PathVariable boolean LGTBFriendly) {
+        return this.venueService.findByLGTBFriendly(LGTBFriendly);
+    }
+
+    @GetMapping("/filter/music-genres")
+    public List<Venue> findByMusicGenres(@RequestParam Set<Music> musicGenres) {
+        return this.venueService.findByMusicGenres(musicGenres);
+    }
+
+    @GetMapping("/filter/rating/{minRating}")
+    public List<Venue> findByAverageRatingGreaterThanEqual(@PathVariable double minRating) {
+        return this.venueService.findByAverageRatingGreaterThanEqual(minRating);
+    }
+
+    @GetMapping("/filter/product")
+    public List<Venue> findByProductNameAndMaxPrice(@RequestParam String productName, @RequestParam double maxPrice) {
+        return this.venueService.findByProductNameAndMaxPrice(productName, maxPrice);
     }
 }

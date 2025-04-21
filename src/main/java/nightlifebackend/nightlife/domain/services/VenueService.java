@@ -1,5 +1,6 @@
 package nightlifebackend.nightlife.domain.services;
 
+import nightlifebackend.nightlife.domain.models.Music;
 import nightlifebackend.nightlife.domain.models.Venue;
 import nightlifebackend.nightlife.domain.persistence_ports.VenuePersistence;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import java.util.NoSuchElementException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class VenueService {
@@ -60,5 +62,21 @@ public class VenueService {
             throw new AccessDeniedException("You are not authorized to view this venue");
         }
         return venuePersistence.findByOwnerEmail(ownerEmail);
+    }
+
+    public List<Venue> findByLGTBFriendly(boolean LGTBFriendly) {
+        return this.venuePersistence.findByLGTBFriendly(LGTBFriendly);
+    }
+
+    public List<Venue> findByMusicGenres(Set<Music> musicGenres) {
+        return this.venuePersistence.findByMusicGenres(musicGenres);
+    }
+
+    public List<Venue> findByAverageRatingGreaterThanEqual(double minRating) {
+        return this.venuePersistence.findByAverageRatingGreaterThanEqual(minRating);
+    }
+
+    public List<Venue> findByProductNameAndMaxPrice(String productName, double maxPrice) {
+        return this.venuePersistence.findByProductNameAndMaxPrice(productName, maxPrice);
     }
 }
