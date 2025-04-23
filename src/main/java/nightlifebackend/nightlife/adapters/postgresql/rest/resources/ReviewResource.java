@@ -30,4 +30,19 @@ public class ReviewResource {
     public List<Review> findByVenueReference(@PathVariable UUID reference) {
         return this.reviewService.findByVenueReference(reference);
     }
+
+    @GetMapping("/{reference}")
+    public Review findByReference(@PathVariable UUID reference) {
+        return this.reviewService.findByReference(reference);
+    }
+
+    @DeleteMapping("/{reference}")
+    public void deleteByReference(@PathVariable UUID reference) {
+        this.reviewService.deleteByReference(reference);
+    }
+
+    @GetMapping("/title/{title}")
+    public List<Review> findByTitle(@PathVariable String title) {
+        return this.reviewService.findByTitle(title);
+    }
 }

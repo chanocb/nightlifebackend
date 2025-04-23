@@ -93,15 +93,42 @@ public class ReviewResourceIT {
                 .expectStatus().isOk()
                 .expectBodyList(Review.class)
                 .value(reviews -> {
-                    assertEquals(1, reviews.size());
-                    assertEquals(opinion, reviews.get(0).getOpinion());
-                    assertEquals(rating, reviews.get(0).getRating());
-                    assertEquals(title, reviews.get(0).getTitle());
-                    assertEquals(client.getEmail(), reviews.get(0).getUser().getEmail());
-                    assertEquals(venue_created.getReference(), reviews.get(0).getVenue().getReference());
+                    int lastIndex = reviews.size() - 1;
+                    assertEquals(opinion, reviews.get(lastIndex).getOpinion());
+                    assertEquals(rating, reviews.get(lastIndex).getRating());
+                    assertEquals(title, reviews.get(lastIndex).getTitle());
+                    assertEquals(client.getEmail(), reviews.get(lastIndex).getUser().getEmail());
+                    assertEquals(venue_created.getReference(), reviews.get(lastIndex).getVenue().getReference());
                 });
 
         return review;
+    }
+
+    private void deleteReview( String title, String opinion, int rating, User client, Venue venue) {
+        EntityExchangeResult<List<Review>> result = this.restClientTestService.login(client.getEmail(), webTestClient).get().uri(REVIEWS + "/title/"+title).exchange().expectStatus().isOk().expectBodyList(Review.class).returnResult();
+        Review review_created = result.getResponseBody().get(0);
+
+
+
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(REVIEWS + "/" + review_created.getReference())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Review.class)
+                .value(r -> {
+                    assertEquals(review_created.getTitle(), r.getTitle());
+                    assertEquals(review_created.getOpinion(), r.getOpinion());
+                    assertEquals(review_created.getRating(), r.getRating());
+                    assertEquals(review_created.getUser().getEmail(), r.getUser().getEmail());
+                    assertEquals(review_created.getVenue().getReference(), r.getVenue().getReference());
+                });
+
+        this.restClientTestService.login(client.getEmail(), this.webTestClient)
+                .delete()
+                .uri(REVIEWS + "/" + review_created.getReference())
+                .exchange()
+                .expectStatus().isOk();
     }
     @Test
     void testCreate() {
@@ -123,4 +150,54 @@ public class ReviewResourceIT {
 
 
     }
+
+    @Test
+    void testDeleteReviewByAuthor() {
+        User owner = createUser("owner1003@example.com", Role.OWNER);
+        Venue venue = createVenue("example2", owner);
+        User client = createUser("client1004@example.com", Role.CLIENT);
+        Review review = createReview("Test Title 1", "This is a review", 5, client, venue);
+
+        deleteReview("Test Title 1", "This is a review", 5, client, venue);
+
+
+    }
+
+    @Test
+    void testDeleteReviewByNonAuthor() {
+        // Crear usuario autor y otro usuario
+        User author = createUser("author@example.com", Role.CLIENT);
+        User nonAuthor = createUser("nonAuthor@example.com", Role.CLIENT);
+        User owner = createUser("owner1005@example.com", Role.OWNER);
+        Venue venue = createVenue("Test Venue", owner);
+        Review review = createReview("Test Title", "Test Opinion", 5, author, venue);
+
+        EntityExchangeResult<List<Review>> result = this.restClientTestService.loginClient(webTestClient).get().uri(REVIEWS + "/title/"+review.getTitle()).exchange().expectStatus().isOk().expectBodyList(Review.class).returnResult();
+        Review review_created = result.getResponseBody().get(0);
+
+
+
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(REVIEWS + "/" + review_created.getReference())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Review.class)
+                .value(r -> {
+                    assertEquals(review_created.getTitle(), r.getTitle());
+                    assertEquals(review_created.getOpinion(), r.getOpinion());
+                    assertEquals(review_created.getRating(), r.getRating());
+                    assertEquals(review_created.getUser().getEmail(), r.getUser().getEmail());
+                    assertEquals(review_created.getVenue().getReference(), r.getVenue().getReference());
+                });
+
+        this.restClientTestService.loginClient(this.webTestClient)
+                .delete()
+                .uri(REVIEWS + "/" + review_created.getReference())
+                .exchange()
+                .expectStatus().isForbidden();
+
+
+    }
+
 }

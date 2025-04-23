@@ -3,9 +3,11 @@ package nightlifebackend.nightlife.domain.services;
 import nightlifebackend.nightlife.domain.models.Review;
 import nightlifebackend.nightlife.domain.persistence_ports.ReviewPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -26,5 +28,26 @@ public class ReviewService {
 
     public List<Review> findByVenueReference(UUID reference) {
         return this.reviewPersistence.findByVenueReference(reference);
+    }
+
+    //buscar por referencia de review
+    public Review findByReference(UUID reference) {
+        return this.reviewPersistence.findByReference(reference);
+    }
+
+    //borrar review por referencia
+    public void deleteByReference(UUID reference) {
+        String userEmail = jwtService.getAuthenticatedUserEmail();
+        Review review = this.reviewPersistence.findByReference(reference);
+
+        if (!review.getUser().getEmail().equals(userEmail)) {
+            throw new AccessDeniedException("You are not authorized to delete this review");
+        }
+
+        this.reviewPersistence.deleteByReference(reference);
+    }
+
+    public List<Review> findByTitle(String title) {
+        return this.reviewPersistence.findByTitle(title);
     }
 }
