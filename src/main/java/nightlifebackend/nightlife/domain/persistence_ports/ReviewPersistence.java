@@ -12,11 +12,11 @@ public interface ReviewPersistence {
 
     Review create(Review review);
 
-    List<Review> findByVenueReference(UUID reference);
+    List<Review> findByVenueReference(String reference);
 
-    Review findByReference(UUID reference);
+    Review findByReference(String reference);
 
-    void deleteByReference(UUID reference);
+    void deleteByReference(String reference);
 
     List<Review> findByTitle(String title);
 }

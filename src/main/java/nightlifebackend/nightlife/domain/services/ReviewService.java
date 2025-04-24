@@ -26,17 +26,17 @@ public class ReviewService {
         return this.reviewPersistence.create(review);
     }
 
-    public List<Review> findByVenueReference(UUID reference) {
+    public List<Review> findByVenueReference(String reference) {
         return this.reviewPersistence.findByVenueReference(reference);
     }
 
     //buscar por referencia de review
-    public Review findByReference(UUID reference) {
+    public Review findByReference(String reference) {
         return this.reviewPersistence.findByReference(reference);
     }
 
     //borrar review por referencia
-    public void deleteByReference(UUID reference) {
+    public void deleteByReference(String reference) {
         String userEmail = jwtService.getAuthenticatedUserEmail();
         Review review = this.reviewPersistence.findByReference(reference);
 

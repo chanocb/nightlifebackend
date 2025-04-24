@@ -42,34 +42,28 @@ public class ReviewPersistencePostgresql implements ReviewPersistence {
     }
 
     @Override
-    public List<Review> findByVenueReference(UUID reference) {
+    public List<Review> findByVenueReference(String reference) {
         return this.reviewRepository
-                .findByVenueReference(reference)
+                .findByVenueReference(UUID.fromString(reference))
                 .stream()
                 .map(ReviewEntity::toReview)
                 .toList();
     }
 
     @Override
-    public Review findByReference(UUID reference) {
+    public Review findByReference(String reference) {
         return this.reviewRepository
-                .findByReference(reference)
+                .findByReference(UUID.fromString(reference))
                 .map(ReviewEntity::toReview)
                 .orElse(null);
     }
 
     @Override
-    public void deleteByReference(UUID reference) {
+    public void deleteByReference(String reference) {
         ReviewEntity reviewEntity = this.reviewRepository
-                .findByReference(reference)
+                .findByReference(UUID.fromString(reference))
                 .orElseThrow(() -> new RuntimeException("Review not found with reference: " + reference));
-
-        try {
-            this.reviewRepository.delete(reviewEntity);
-        } catch (ObjectOptimisticLockingFailureException e) {
-            throw new RuntimeException("Failed to delete review with reference: " + reference, e);
-        }
-
+        this.reviewRepository.delete(reviewEntity);
     }
 
     @Override

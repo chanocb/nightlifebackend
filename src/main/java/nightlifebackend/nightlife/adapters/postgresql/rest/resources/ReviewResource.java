@@ -27,17 +27,17 @@ public class ReviewResource {
     }
 
     @GetMapping("/venue/{reference}")
-    public List<Review> findByVenueReference(@PathVariable UUID reference) {
+    public List<Review> findByVenueReference(@PathVariable String reference) {
         return this.reviewService.findByVenueReference(reference);
     }
 
     @GetMapping("/{reference}")
-    public Review findByReference(@PathVariable UUID reference) {
+    public Review findByReference(@PathVariable String reference) {
         return this.reviewService.findByReference(reference);
     }
 
     @DeleteMapping("/{reference}")
-    public void deleteByReference(@PathVariable UUID reference) {
+    public void deleteByReference(@PathVariable String reference) {
         this.reviewService.deleteByReference(reference);
     }
 

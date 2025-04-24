@@ -13,6 +13,8 @@ import java.util.List;
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.ReviewResource.REVIEWS;
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.UserResource.USERS;
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.VenueResource.VENUES;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ApiTestConfig
@@ -167,7 +169,6 @@ public class ReviewResourceIT {
     void testDeleteReviewByNonAuthor() {
         // Crear usuario autor y otro usuario
         User author = createUser("author@example.com", Role.CLIENT);
-        User nonAuthor = createUser("nonAuthor@example.com", Role.CLIENT);
         User owner = createUser("owner1005@example.com", Role.OWNER);
         Venue venue = createVenue("Test Venue", owner);
         Review review = createReview("Test Title", "Test Opinion", 5, author, venue);
@@ -198,6 +199,22 @@ public class ReviewResourceIT {
                 .expectStatus().isForbidden();
 
 
+    }
+
+    @Test
+    void testFindByTitleReturnsEmptyList() {
+        String nonExistentTitle = "NonExistentTitle";
+
+        this.restClientTestService.loginClient(this.webTestClient)
+                .get()
+                .uri(REVIEWS + "/title/" + nonExistentTitle)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Review.class)
+                .value(reviews -> {
+                    assertNotNull(reviews, "The response should not be null");
+                    assertTrue(reviews.isEmpty(), "The list of reviews should be empty");
+                });
     }
 
 }
