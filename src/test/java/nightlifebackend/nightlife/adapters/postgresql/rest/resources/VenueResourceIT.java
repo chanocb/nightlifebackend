@@ -1022,4 +1022,88 @@ public class VenueResourceIT {
                     assertTrue(venues.stream().anyMatch(v -> v.getName().equals("Expensive Beer Venue")));
                 });
     }
+
+    @Test
+    void testCreateAndUpdateSchedules() {
+        User owner = User.builder()
+                .email("owner_schedule@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        Venue venue = Venue.builder()
+                .name("Schedule Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("schedule_instagram")
+                .owner(owner)
+                .build();
+
+        Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        // Crear schedules
+        Schedule mondaySchedule = Schedule.builder()
+                .dayOfWeek(DayOfWeek.MONDAY)
+                .startTime(java.time.LocalTime.of(10, 0))
+                .endTime(java.time.LocalTime.of(18, 0))
+                .build();
+        Schedule tuesdaySchedule = Schedule.builder()
+                .dayOfWeek(DayOfWeek.TUESDAY)
+                .startTime(java.time.LocalTime.of(12, 0))
+                .endTime(java.time.LocalTime.of(20, 0))
+                .build();
+
+        List<Schedule> schedules = List.of(mondaySchedule, tuesdaySchedule);
+
+        // Crear schedules para el venue
+        Venue venueWithSchedules = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .body(BodyInserters.fromValue(schedules))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        assert venueWithSchedules != null;
+        assert venueWithSchedules.getSchedules().size() == 2;
+        assert venueWithSchedules.getSchedules().stream().anyMatch(s -> s.getDayOfWeek() == DayOfWeek.MONDAY);
+        assert venueWithSchedules.getSchedules().stream().anyMatch(s -> s.getDayOfWeek() == DayOfWeek.TUESDAY);
+
+        // Actualizar schedules (solo martes)
+        List<Schedule> updatedSchedules = List.of(tuesdaySchedule);
+        Venue updatedVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .body(BodyInserters.fromValue(updatedSchedules))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        assert updatedVenue != null;
+        assert updatedVenue.getSchedules().size() == 1;
+        assert updatedVenue.getSchedules().get(0).getDayOfWeek() == DayOfWeek.TUESDAY;
+    }
 }
