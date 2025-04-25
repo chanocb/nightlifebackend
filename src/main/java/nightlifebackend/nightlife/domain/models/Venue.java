@@ -38,4 +38,6 @@ public class Venue {
     private Set<Music> musicGenres;
 
     private List<Product> products;
+
+    private List<Schedule> schedules;
 }

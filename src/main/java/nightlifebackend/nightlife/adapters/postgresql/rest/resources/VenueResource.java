@@ -2,6 +2,7 @@ package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
 import jakarta.validation.Valid;
 import nightlifebackend.nightlife.domain.models.Music;
+import nightlifebackend.nightlife.domain.models.Schedule;
 import nightlifebackend.nightlife.domain.models.Venue;
 import nightlifebackend.nightlife.domain.services.VenueService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,5 +80,11 @@ public class VenueResource {
     @GetMapping("/filter/product")
     public List<Venue> findByProductNameAndMaxPrice(@RequestParam String productName, @RequestParam double maxPrice) {
         return this.venueService.findByProductNameAndMaxPrice(productName, maxPrice);
+    }
+
+    @PreAuthorize("hasRole('OWNER')")
+    @PostMapping("/{reference}/schedules")
+    public Venue createSchedules(@PathVariable String reference, @Valid @RequestBody List<Schedule> schedules) {
+        return this.venueService.createSchedules(reference, schedules);
     }
 }

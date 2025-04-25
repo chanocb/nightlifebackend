@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import nightlifebackend.nightlife.domain.models.Music;
 import nightlifebackend.nightlife.domain.models.Product;
+import nightlifebackend.nightlife.domain.models.Schedule;
 import nightlifebackend.nightlife.domain.models.Venue;
 import org.springframework.beans.BeanUtils;
 
@@ -56,6 +57,10 @@ public class VenueEntity {
     @Builder.Default
     private List<ProductEntity> products = new ArrayList<>();
 
+    @OneToMany(mappedBy = "venue", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<ScheduleEntity> schedules = new ArrayList<>();
+
     public VenueEntity(Venue venue) {
         BeanUtils.copyProperties(venue, this);
         if (venue.getOwner() != null) {
@@ -71,6 +76,15 @@ public class VenueEntity {
                         ProductEntity productEntity = new ProductEntity(product);
                         productEntity.setVenue(this);
                         return productEntity;
+                    })
+                    .collect(Collectors.toList());
+        }
+        if (venue.getSchedules() != null) {
+            this.schedules = venue.getSchedules().stream()
+                    .map(schedule -> {
+                        ScheduleEntity scheduleEntity = new ScheduleEntity(schedule);
+                        scheduleEntity.setVenue(this);
+                        return scheduleEntity;
                     })
                     .collect(Collectors.toList());
         }
@@ -92,6 +106,13 @@ public class VenueEntity {
                     .collect(Collectors.toList()));
         } else {
             venue.setProducts(new ArrayList<>());
+        }
+        if (this.schedules != null) {
+            venue.setSchedules(this.schedules.stream()
+                    .map(ScheduleEntity::toSchedule)
+                    .collect(Collectors.toList()));
+        } else {
+            venue.setSchedules(new ArrayList<>());
         }
         return venue;
     }

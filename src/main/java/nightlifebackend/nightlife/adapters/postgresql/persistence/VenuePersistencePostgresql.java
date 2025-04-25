@@ -5,10 +5,12 @@ import nightlifebackend.nightlife.adapters.postgresql.daos.UserRepository;
 import nightlifebackend.nightlife.adapters.postgresql.daos.VenueRepository;
 import nightlifebackend.nightlife.adapters.postgresql.entities.CoordinateEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.ProductEntity;
+import nightlifebackend.nightlife.adapters.postgresql.entities.ScheduleEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.UserEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.VenueEntity;
 import nightlifebackend.nightlife.domain.models.Music;
 import nightlifebackend.nightlife.domain.models.Product;
+import nightlifebackend.nightlife.domain.models.Schedule;
 import nightlifebackend.nightlife.domain.models.Venue;
 import nightlifebackend.nightlife.domain.persistence_ports.VenuePersistence;
 import org.slf4j.Logger;
@@ -72,7 +74,7 @@ public class VenuePersistencePostgresql implements VenuePersistence {
     public Venue update(String reference, Venue venue) {
         VenueEntity existingVenueEntity = this.venueRepository
                 .findByReference(UUID.fromString(reference))
-                .orElseThrow(() -> new RuntimeException("Locla no encontrado con referencia: " + venue.getReference()));
+                .orElseThrow(() -> new RuntimeException("Local no encontrado con referencia: " + venue.getReference()));
 
         existingVenueEntity.setName(venue.getName());
         existingVenueEntity.setPhone(venue.getPhone());
@@ -88,6 +90,15 @@ public class VenuePersistencePostgresql implements VenuePersistence {
                 ProductEntity productEntity = new ProductEntity(product);
                 productEntity.setVenue(existingVenueEntity);
                 existingVenueEntity.getProducts().add(productEntity);
+            }
+        }
+
+        if (venue.getSchedules() != null) {
+            existingVenueEntity.getSchedules().clear();
+            for (Schedule schedule : venue.getSchedules()) {
+                ScheduleEntity scheduleEntity = new ScheduleEntity(schedule);
+                scheduleEntity.setVenue(existingVenueEntity);
+                existingVenueEntity.getSchedules().add(scheduleEntity);
             }
         }
 
@@ -135,5 +146,26 @@ public class VenuePersistencePostgresql implements VenuePersistence {
         return this.venueRepository.findByProductNameAndMaxPrice(productName, maxPrice).stream()
                 .map(VenueEntity::toVenue)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Venue createSchedules(String reference, List<Schedule> schedules) {
+        VenueEntity existingVenueEntity = this.venueRepository
+                .findByReference(UUID.fromString(reference))
+                .orElseThrow(() -> new RuntimeException("Local no encontrado con referencia: " + reference));
+
+        // Limpiar schedules existentes
+        existingVenueEntity.getSchedules().clear();
+
+        // Añadir nuevos schedules
+        for (Schedule schedule : schedules) {
+            ScheduleEntity scheduleEntity = new ScheduleEntity(schedule);
+            scheduleEntity.setVenue(existingVenueEntity);
+            existingVenueEntity.getSchedules().add(scheduleEntity);
+        }
+
+        return this.venueRepository
+                .save(existingVenueEntity)
+                .toVenue();
     }
 }

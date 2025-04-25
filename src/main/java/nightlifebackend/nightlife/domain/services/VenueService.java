@@ -1,6 +1,8 @@
 package nightlifebackend.nightlife.domain.services;
 
+import nightlifebackend.nightlife.domain.models.DayOfWeek;
 import nightlifebackend.nightlife.domain.models.Music;
+import nightlifebackend.nightlife.domain.models.Schedule;
 import nightlifebackend.nightlife.domain.models.Venue;
 import nightlifebackend.nightlife.domain.persistence_ports.VenuePersistence;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class VenueService {
@@ -78,5 +81,29 @@ public class VenueService {
 
     public List<Venue> findByProductNameAndMaxPrice(String productName, double maxPrice) {
         return this.venuePersistence.findByProductNameAndMaxPrice(productName, maxPrice);
+    }
+
+    public Venue createSchedules(String reference, List<Schedule> schedules) {
+        String ownerEmail = jwtService.getAuthenticatedUserEmail();
+        Venue existingVenue = venuePersistence.findByReference(reference);
+
+        if (existingVenue == null) {
+            throw new NoSuchElementException("Venue not found with reference: " + reference);
+        }
+
+        if (!existingVenue.getOwner().getEmail().equals(ownerEmail)) {
+            throw new AccessDeniedException("You are not authorized to update this venue");
+        }
+
+        // Verificar que no haya días duplicados
+        Set<DayOfWeek> days = schedules.stream()
+                .map(Schedule::getDayOfWeek)
+                .collect(Collectors.toSet());
+        
+        if (days.size() != schedules.size()) {
+            throw new IllegalArgumentException("No se pueden tener días duplicados en los horarios");
+        }
+
+        return venuePersistence.createSchedules(reference, schedules);
     }
 }
