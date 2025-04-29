@@ -10,14 +10,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
-
-
 public enum MusicEntity {
     POP, ROCK, HIP_HOP;
 
     public static final String PREFIX = "MUSIC_";
 
-    @ManyToMany(mappedBy = "musicGenres")  // Relación inversa desde MusicEntity hacia VenueEntity
+    @ManyToMany(mappedBy = "musicGenres")
     private Set<VenueEntity> venues;
 
 }

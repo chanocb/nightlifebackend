@@ -1,6 +1,5 @@
 package nightlifebackend.nightlife.adapters.postgresql.persistence;
 
-
 import nightlifebackend.nightlife.adapters.postgresql.daos.UserRepository;
 import nightlifebackend.nightlife.adapters.postgresql.daos.VenueRepository;
 import nightlifebackend.nightlife.adapters.postgresql.entities.CoordinateEntity;
@@ -82,7 +81,11 @@ public class VenuePersistencePostgresql implements VenuePersistence {
         existingVenueEntity.setLGTBFriendly(venue.isLGTBFriendly());
         existingVenueEntity.setImageUrl(venue.getImageUrl());
         existingVenueEntity.setMusicGenres(venue.getMusicGenres());
-        existingVenueEntity.setCoordinate(new CoordinateEntity(venue.getCoordinate()));
+        if (venue.getCoordinate() != null) {
+            existingVenueEntity.setCoordinate(new CoordinateEntity(venue.getCoordinate()));
+        } else {
+            existingVenueEntity.setCoordinate(null);
+        }
 
         if (venue.getProducts() != null) {
             existingVenueEntity.getProducts().clear();
@@ -154,10 +157,8 @@ public class VenuePersistencePostgresql implements VenuePersistence {
                 .findByReference(UUID.fromString(reference))
                 .orElseThrow(() -> new RuntimeException("Local no encontrado con referencia: " + reference));
 
-        // Limpiar schedules existentes
         existingVenueEntity.getSchedules().clear();
 
-        // Añadir nuevos schedules
         for (Schedule schedule : schedules) {
             ScheduleEntity scheduleEntity = new ScheduleEntity(schedule);
             scheduleEntity.setVenue(existingVenueEntity);

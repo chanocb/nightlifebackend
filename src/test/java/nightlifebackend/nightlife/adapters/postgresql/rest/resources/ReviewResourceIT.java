@@ -110,8 +110,6 @@ public class ReviewResourceIT {
         EntityExchangeResult<List<Review>> result = this.restClientTestService.login(client.getEmail(), webTestClient).get().uri(REVIEWS + "/title/"+title).exchange().expectStatus().isOk().expectBodyList(Review.class).returnResult();
         Review review_created = result.getResponseBody().get(0);
 
-
-
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
                 .uri(REVIEWS + "/" + review_created.getReference())
@@ -132,6 +130,7 @@ public class ReviewResourceIT {
                 .exchange()
                 .expectStatus().isOk();
     }
+
     @Test
     void testCreate() {
         User owner = createUser("owner1001@example.com", Role.OWNER);
@@ -148,9 +147,6 @@ public class ReviewResourceIT {
         User client = createUser("client1002@example.com", Role.CLIENT);
 
         createReview("titulo", "This is a review", 5, client, venue);
-
-
-
     }
 
     @Test
@@ -161,13 +157,10 @@ public class ReviewResourceIT {
         Review review = createReview("Test Title 1", "This is a review", 5, client, venue);
 
         deleteReview("Test Title 1", "This is a review", 5, client, venue);
-
-
     }
 
     @Test
     void testDeleteReviewByNonAuthor() {
-        // Crear usuario autor y otro usuario
         User author = createUser("author@example.com", Role.CLIENT);
         User owner = createUser("owner1005@example.com", Role.OWNER);
         Venue venue = createVenue("Test Venue", owner);
@@ -175,8 +168,6 @@ public class ReviewResourceIT {
 
         EntityExchangeResult<List<Review>> result = this.restClientTestService.loginClient(webTestClient).get().uri(REVIEWS + "/title/"+review.getTitle()).exchange().expectStatus().isOk().expectBodyList(Review.class).returnResult();
         Review review_created = result.getResponseBody().get(0);
-
-
 
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
@@ -197,8 +188,6 @@ public class ReviewResourceIT {
                 .uri(REVIEWS + "/" + review_created.getReference())
                 .exchange()
                 .expectStatus().isForbidden();
-
-
     }
 
     @Test
@@ -216,5 +205,4 @@ public class ReviewResourceIT {
                     assertTrue(reviews.isEmpty(), "The list of reviews should be empty");
                 });
     }
-
 }

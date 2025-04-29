@@ -11,8 +11,8 @@ public class ErrorMessage {
     private final Integer code;
 
     public ErrorMessage(Exception exception, Integer code) {
-        this.error = exception.getClass().getSimpleName();  // Obtiene el nombre de la clase de la excepción
-        this.message = exception.getMessage();  // Obtiene el mensaje de la excepción
+        this.error = exception.getClass().getSimpleName();
+        this.message = exception.getMessage();
         this.code = code;
     }
 }

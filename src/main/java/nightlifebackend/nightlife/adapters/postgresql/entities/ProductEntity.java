@@ -10,7 +10,7 @@ import nightlifebackend.nightlife.domain.models.User;
 import org.springframework.beans.BeanUtils;
 
 @Builder
-@Data //@ToString, @EqualsAndHashCode, @Getter, @Setter, @RequiredArgsConstructor
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -28,7 +28,6 @@ public class ProductEntity {
 
     public ProductEntity(Product product) {
         BeanUtils.copyProperties(product, this);
-
     }
 
     public Product toProduct() {

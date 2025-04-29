@@ -234,7 +234,7 @@ public class VenueResourceIT {
                     assertEquals(createdVenue.getPhone(), foundVenue.getPhone());
                     assertEquals(createdVenue.getInstagram(), foundVenue.getInstagram());
                     assertEquals(createdVenue.isLGTBFriendly(), foundVenue.isLGTBFriendly());
-                    assertEquals(createdVenue.getOwner().getEmail(), foundVenue.getOwner().getEmail()); // Verificar el owner
+                    assertEquals(createdVenue.getOwner().getEmail(), foundVenue.getOwner().getEmail());
                 });
     }
 
@@ -623,7 +623,6 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isOk();
 
-        // Create LGTBFriendly venue
         Venue venue1 = Venue.builder()
                 .name("LGTB Venue")
                 .phone("123456789")
@@ -640,7 +639,7 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isOk();
 
-        // Create non-LGTBFriendly venue
+
         Venue venue2 = Venue.builder()
                 .name("Regular Venue")
                 .phone("123456789")
@@ -657,7 +656,6 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isOk();
 
-        // Test LGTBFriendly filter
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
                 .uri(VENUES + "/filter/lgtb-friendly/true")
@@ -669,7 +667,6 @@ public class VenueResourceIT {
                     assertTrue(venues.stream().noneMatch(v -> v.getName().equals("Regular Venue")));
                 });
 
-        // Test non-LGTBFriendly filter
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
                 .uri(VENUES + "/filter/lgtb-friendly/false")
@@ -701,7 +698,6 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isOk();
 
-        // Create venues with different music genres
         Venue popVenue = Venue.builder()
                 .name("Pop Venue")
                 .phone("123456789")
@@ -750,7 +746,6 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isOk();
 
-        // Test single genre filter
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
                 .uri(VENUES + "/filter/music-genres?musicGenres=POP")
@@ -763,7 +758,6 @@ public class VenueResourceIT {
                     assertTrue(venues.stream().noneMatch(v -> v.getName().equals("Rock Venue")));
                 });
 
-        // Test multiple genres filter
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
                 .uri(VENUES + "/filter/music-genres?musicGenres=POP,ROCK")
@@ -830,7 +824,6 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isOk();
 
-        // Create venues
         Venue highRatedVenue = Venue.builder()
                 .name("High Rated Venue")
                 .phone("123456789")
@@ -869,7 +862,6 @@ public class VenueResourceIT {
                 .returnResult()
                 .getResponseBody();
 
-        // Add reviews
         Review review1 = Review.builder()
                 .title("Great place")
                 .opinion("Amazing venue")
@@ -915,7 +907,6 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isOk();
 
-        // Test rating filter
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
                 .uri(VENUES + "/filter/rating/4.5")
@@ -927,7 +918,6 @@ public class VenueResourceIT {
                     assertTrue(venues.stream().noneMatch(v -> v.getName().equals("Low Rated Venue")));
                 });
 
-        // Test lower rating filter
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
                 .uri(VENUES + "/filter/rating/3.0")
@@ -959,7 +949,6 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isOk();
 
-        // Create venues with different products
         Venue cheapBeerVenue = Venue.builder()
                 .name("Cheap Beer Venue")
                 .phone("123456789")
@@ -998,7 +987,6 @@ public class VenueResourceIT {
                 .exchange()
                 .expectStatus().isOk();
 
-        // Test filter for cheap beer
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
                 .uri(VENUES + "/filter/product?productName=Beer&maxPrice=3.0")
@@ -1010,7 +998,6 @@ public class VenueResourceIT {
                     assertTrue(venues.stream().noneMatch(v -> v.getName().equals("Expensive Beer Venue")));
                 });
 
-        // Test filter for more expensive beer
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
                 .uri(VENUES + "/filter/product?productName=Beer&maxPrice=5.0")
@@ -1060,7 +1047,6 @@ public class VenueResourceIT {
                 .returnResult()
                 .getResponseBody();
 
-        // Crear schedules
         Schedule mondaySchedule = Schedule.builder()
                 .dayOfWeek(DayOfWeek.MONDAY)
                 .startTime(java.time.LocalTime.of(10, 0))
@@ -1074,7 +1060,6 @@ public class VenueResourceIT {
 
         List<Schedule> schedules = List.of(mondaySchedule, tuesdaySchedule);
 
-        // Crear schedules para el venue
         Venue venueWithSchedules = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
                 .post()
                 .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
@@ -1090,7 +1075,6 @@ public class VenueResourceIT {
         assert venueWithSchedules.getSchedules().stream().anyMatch(s -> s.getDayOfWeek() == DayOfWeek.MONDAY);
         assert venueWithSchedules.getSchedules().stream().anyMatch(s -> s.getDayOfWeek() == DayOfWeek.TUESDAY);
 
-        // Actualizar schedules (solo martes)
         List<Schedule> updatedSchedules = List.of(tuesdaySchedule);
         Venue updatedVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
                 .post()
@@ -1105,5 +1089,587 @@ public class VenueResourceIT {
         assert updatedVenue != null;
         assert updatedVenue.getSchedules().size() == 1;
         assert updatedVenue.getSchedules().get(0).getDayOfWeek() == DayOfWeek.TUESDAY;
+    }
+
+    @Test
+    void testSchedulesEndpoints() {
+        User owner = User.builder()
+                .email("owner_schedule2@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        Coordinate coordinate = Coordinate.builder().latitude(1.0).longitude(1.0).build();
+        Venue venue = Venue.builder()
+                .name("Schedule Venue 2")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("schedule_instagram2")
+                .owner(owner)
+                .coordinate(coordinate)
+                .build();
+
+        Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        Schedule mondaySchedule = Schedule.builder()
+                .dayOfWeek(DayOfWeek.MONDAY)
+                .startTime(java.time.LocalTime.of(10, 0))
+                .endTime(java.time.LocalTime.of(18, 0))
+                .build();
+        Schedule tuesdaySchedule = Schedule.builder()
+                .dayOfWeek(DayOfWeek.TUESDAY)
+                .startTime(java.time.LocalTime.of(12, 0))
+                .endTime(java.time.LocalTime.of(20, 0))
+                .build();
+        List<Schedule> schedules = List.of(mondaySchedule, tuesdaySchedule);
+
+        Venue venueWithSchedules = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .body(BodyInserters.fromValue(schedules))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        assert venueWithSchedules != null;
+        assert venueWithSchedules.getSchedules().size() == 2;
+        Schedule monday = venueWithSchedules.getSchedules().stream().filter(s -> s.getDayOfWeek() == DayOfWeek.MONDAY).findFirst().orElseThrow();
+        Schedule tuesday = venueWithSchedules.getSchedules().stream().filter(s -> s.getDayOfWeek() == DayOfWeek.TUESDAY).findFirst().orElseThrow();
+
+        List<Schedule> getAll = this.webTestClient.get()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Schedule.class)
+                .returnResult()
+                .getResponseBody();
+        assert getAll != null;
+        assert getAll.size() == 2;
+
+        Schedule getOne = this.webTestClient.get()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules/" + monday.getReference())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Schedule.class)
+                .returnResult()
+                .getResponseBody();
+        assert getOne != null;
+        assert getOne.getDayOfWeek() == DayOfWeek.MONDAY;
+
+        List<Schedule> newSchedules = List.of(
+                Schedule.builder().dayOfWeek(DayOfWeek.WEDNESDAY).startTime(java.time.LocalTime.of(8, 0)).endTime(java.time.LocalTime.of(16, 0)).build()
+        );
+        Venue updateVenue = Venue.builder()
+                .reference(createdVenue.getReference())
+                .name(createdVenue.getName())
+                .phone(createdVenue.getPhone())
+                .LGTBFriendly(createdVenue.isLGTBFriendly())
+                .instagram(createdVenue.getInstagram())
+                .owner(createdVenue.getOwner())
+                .coordinate(createdVenue.getCoordinate())
+                .schedules(newSchedules)
+                .build();
+        Venue updatedVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .put()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .body(BodyInserters.fromValue(newSchedules))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+        assert updatedVenue != null;
+        assert updatedVenue.getSchedules().size() == 1;
+        assert updatedVenue.getSchedules().get(0).getDayOfWeek() == DayOfWeek.WEDNESDAY;
+
+        this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .delete()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .exchange()
+                .expectStatus().isOk();
+        List<Schedule> afterDelete = this.webTestClient.get()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Schedule.class)
+                .returnResult()
+                .getResponseBody();
+        assert afterDelete != null;
+        assert afterDelete.isEmpty();
+
+        Venue venueWithSchedules2 = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .body(BodyInserters.fromValue(schedules))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+        assert venueWithSchedules2 != null;
+        Schedule monday2 = venueWithSchedules2.getSchedules().stream().filter(s -> s.getDayOfWeek() == DayOfWeek.MONDAY).findFirst().orElseThrow();
+        Schedule tuesday2 = venueWithSchedules2.getSchedules().stream().filter(s -> s.getDayOfWeek() == DayOfWeek.TUESDAY).findFirst().orElseThrow();
+
+        monday2.setStartTime(java.time.LocalTime.of(15, 0));
+        Venue updateVenueSingle = Venue.builder()
+                .reference(createdVenue.getReference())
+                .name(createdVenue.getName())
+                .phone(createdVenue.getPhone())
+                .LGTBFriendly(createdVenue.isLGTBFriendly())
+                .instagram(createdVenue.getInstagram())
+                .owner(createdVenue.getOwner())
+                .coordinate(createdVenue.getCoordinate())
+                .schedules(List.of(monday2, tuesday2))
+                .build();
+        Schedule updatedSchedule = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .put()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules/" + monday2.getReference())
+                .body(BodyInserters.fromValue(monday2))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Schedule.class)
+                .returnResult()
+                .getResponseBody();
+        assert updatedSchedule != null;
+        assert updatedSchedule.getStartTime().equals(java.time.LocalTime.of(15, 0));
+
+        this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .delete()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules/" + tuesday2.getReference())
+                .exchange()
+                .expectStatus().isOk();
+        List<Schedule> afterDeleteOne = this.webTestClient.get()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Schedule.class)
+                .returnResult()
+                .getResponseBody();
+        assert afterDeleteOne != null;
+        assert afterDeleteOne.size() == 1;
+        assert afterDeleteOne.get(0).getDayOfWeek() == DayOfWeek.MONDAY;
+    }
+
+    @Test
+    void testDeleteScheduleWithNonExistentVenue() {
+        String nonExistentReference = UUID.randomUUID().toString();
+        String scheduleId = UUID.randomUUID().toString();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .delete()
+                .uri(VENUES + "/" + nonExistentReference + "/schedules/" + scheduleId)
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void testDeleteScheduleWithNonExistentSchedule() {
+        User owner = User.builder()
+                .email("owner_delete_schedule@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        Venue venue = Venue.builder()
+                .name("Schedule Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("schedule_instagram")
+                .owner(owner)
+                .build();
+
+        Venue createdVenue = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        String nonExistentScheduleId = UUID.randomUUID().toString();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .delete()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules/" + nonExistentScheduleId)
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Test
+    void testGetScheduleWithNonExistentVenue() {
+        String nonExistentReference = UUID.randomUUID().toString();
+        String scheduleId = UUID.randomUUID().toString();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .get()
+                .uri(VENUES + "/" + nonExistentReference + "/schedules/" + scheduleId)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testGetScheduleWithNonExistentSchedule() {
+        User owner = User.builder()
+                .email("owner_get_schedule@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        Venue venue = Venue.builder()
+                .name("Schedule Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("schedule_instagram")
+                .owner(owner)
+                .build();
+
+        Venue createdVenue = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        String nonExistentScheduleId = UUID.randomUUID().toString();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .get()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules/" + nonExistentScheduleId)
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testUpdateScheduleWithNonExistentVenue() {
+        String nonExistentReference = UUID.randomUUID().toString();
+        String scheduleId = UUID.randomUUID().toString();
+
+        Schedule schedule = Schedule.builder()
+                .dayOfWeek(DayOfWeek.MONDAY)
+                .startTime(java.time.LocalTime.of(10, 0))
+                .endTime(java.time.LocalTime.of(18, 0))
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .put()
+                .uri(VENUES + "/" + nonExistentReference + "/schedules/" + scheduleId)
+                .body(BodyInserters.fromValue(schedule))
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testUpdateScheduleWithNonExistentSchedule() {
+        User owner = User.builder()
+                .email("owner_update_schedule@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        Venue venue = Venue.builder()
+                .name("Schedule Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("schedule_instagram")
+                .owner(owner)
+                .build();
+
+        Venue createdVenue = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        String nonExistentScheduleId = UUID.randomUUID().toString();
+
+        Schedule schedule = Schedule.builder()
+                .dayOfWeek(DayOfWeek.MONDAY)
+                .startTime(java.time.LocalTime.of(10, 0))
+                .endTime(java.time.LocalTime.of(18, 0))
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .put()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules/" + nonExistentScheduleId)
+                .body(BodyInserters.fromValue(schedule))
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testCreateSchedulesWithNonExistentVenue() {
+        String nonExistentReference = UUID.randomUUID().toString();
+        
+        Schedule mondaySchedule = Schedule.builder()
+                .dayOfWeek(DayOfWeek.MONDAY)
+                .startTime(java.time.LocalTime.of(10, 0))
+                .endTime(java.time.LocalTime.of(18, 0))
+                .build();
+
+        List<Schedule> schedules = List.of(mondaySchedule);
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES + "/" + nonExistentReference + "/schedules")
+                .body(BodyInserters.fromValue(schedules))
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testCreateSchedulesWithNonOwner() {
+        User owner = User.builder()
+                .email("owner_schedule_non_owner@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        User nonOwner = User.builder()
+                .email("nonowner_schedule@example.com")
+                .password("1234")
+                .firstName("Jane")
+                .lastName("Smith")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(nonOwner))
+                .exchange()
+                .expectStatus().isOk();
+
+        Venue venue = Venue.builder()
+                .name("Schedule Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("schedule_instagram")
+                .owner(owner)
+                .build();
+
+        Venue createdVenue = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        Schedule mondaySchedule = Schedule.builder()
+                .dayOfWeek(DayOfWeek.MONDAY)
+                .startTime(java.time.LocalTime.of(10, 0))
+                .endTime(java.time.LocalTime.of(18, 0))
+                .build();
+
+        List<Schedule> schedules = List.of(mondaySchedule);
+
+        this.restClientTestService.login(nonOwner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .body(BodyInserters.fromValue(schedules))
+                .exchange()
+                .expectStatus().isForbidden();
+    }
+
+    @Test
+    void testCreateSchedulesWithDuplicateDays() {
+        User owner = User.builder()
+                .email("owner_schedule_duplicate@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        Venue venue = Venue.builder()
+                .name("Schedule Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("schedule_instagram")
+                .owner(owner)
+                .build();
+
+        Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        Schedule mondaySchedule1 = Schedule.builder()
+                .dayOfWeek(DayOfWeek.MONDAY)
+                .startTime(java.time.LocalTime.of(10, 0))
+                .endTime(java.time.LocalTime.of(18, 0))
+                .build();
+
+        Schedule mondaySchedule2 = Schedule.builder()
+                .dayOfWeek(DayOfWeek.MONDAY)
+                .startTime(java.time.LocalTime.of(19, 0))
+                .endTime(java.time.LocalTime.of(23, 0))
+                .build();
+
+        List<Schedule> schedules = List.of(mondaySchedule1, mondaySchedule2);
+
+        this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .body(BodyInserters.fromValue(schedules))
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    void testCreateSchedulesSuccessfully() {
+        User owner = User.builder()
+                .email("owner_schedule_success@example.com")
+                .password("1234")
+                .firstName("John")
+                .lastName("Doe")
+                .phone("987654321")
+                .birthDate(LocalDate.of(1992, 3, 5))
+                .role(Role.OWNER)
+                .build();
+
+        this.webTestClient
+                .post()
+                .uri(USERS)
+                .body(BodyInserters.fromValue(owner))
+                .exchange()
+                .expectStatus().isOk();
+
+        Venue venue = Venue.builder()
+                .name("Schedule Venue")
+                .phone("123456789")
+                .LGTBFriendly(true)
+                .instagram("schedule_instagram")
+                .owner(owner)
+                .build();
+
+        Venue createdVenue = this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES)
+                .body(BodyInserters.fromValue(venue))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .returnResult()
+                .getResponseBody();
+
+        Schedule mondaySchedule = Schedule.builder()
+                .dayOfWeek(DayOfWeek.MONDAY)
+                .startTime(java.time.LocalTime.of(10, 0))
+                .endTime(java.time.LocalTime.of(18, 0))
+                .build();
+
+        Schedule tuesdaySchedule = Schedule.builder()
+                .dayOfWeek(DayOfWeek.TUESDAY)
+                .startTime(java.time.LocalTime.of(12, 0))
+                .endTime(java.time.LocalTime.of(20, 0))
+                .build();
+
+        List<Schedule> schedules = List.of(mondaySchedule, tuesdaySchedule);
+
+        this.restClientTestService.login(owner.getEmail(), this.webTestClient)
+                .post()
+                .uri(VENUES + "/" + createdVenue.getReference() + "/schedules")
+                .body(BodyInserters.fromValue(schedules))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Venue.class)
+                .value(updatedVenue -> {
+                    assertTrue(updatedVenue.getSchedules().size() == 2);
+                    assertTrue(updatedVenue.getSchedules().stream().anyMatch(s -> s.getDayOfWeek() == DayOfWeek.MONDAY));
+                    assertTrue(updatedVenue.getSchedules().stream().anyMatch(s -> s.getDayOfWeek() == DayOfWeek.TUESDAY));
+                });
     }
 }

@@ -42,4 +42,11 @@ public class RestExceptionHandler {
     public ResponseEntity<String> handleAccessDenied(AccessDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseBody
+    public ErrorMessage handleIllegalArgument(IllegalArgumentException ex) {
+        return new ErrorMessage(ex, HttpStatus.BAD_REQUEST.value());
+    }
 }

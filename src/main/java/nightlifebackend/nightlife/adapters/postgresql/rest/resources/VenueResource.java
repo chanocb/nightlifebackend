@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -86,5 +87,39 @@ public class VenueResource {
     @PostMapping("/{reference}/schedules")
     public Venue createSchedules(@PathVariable String reference, @Valid @RequestBody List<Schedule> schedules) {
         return this.venueService.createSchedules(reference, schedules);
+    }
+
+    @GetMapping("/{reference}/schedules")
+    public List<Schedule> getSchedules(@PathVariable String reference) {
+        return this.venueService.findByReference(reference).getSchedules();
+    }
+
+    @GetMapping("/{reference}/schedules/{scheduleId}")
+    public Schedule getSchedule(@PathVariable String reference, @PathVariable String scheduleId) {
+        return this.venueService.getSchedule(reference, scheduleId);
+    }
+
+    @PreAuthorize("hasRole('OWNER')")
+    @PutMapping("/{reference}/schedules")
+    public Venue updateSchedules(@PathVariable String reference, @Valid @RequestBody List<Schedule> schedules) {
+        return this.venueService.createSchedules(reference, schedules);
+    }
+
+    @PreAuthorize("hasRole('OWNER')")
+    @DeleteMapping("/{reference}/schedules")
+    public void deleteSchedules(@PathVariable String reference) {
+        this.venueService.createSchedules(reference, List.of());
+    }
+
+    @PreAuthorize("hasRole('OWNER')")
+    @PutMapping("/{reference}/schedules/{scheduleId}")
+    public Schedule updateSchedule(@PathVariable String reference, @PathVariable String scheduleId, @Valid @RequestBody Schedule schedule) {
+        return this.venueService.updateSchedule(reference, scheduleId, schedule);
+    }
+
+    @PreAuthorize("hasRole('OWNER')")
+    @DeleteMapping("/{reference}/schedules/{scheduleId}")
+    public void deleteSchedule(@PathVariable String reference, @PathVariable String scheduleId) {
+        this.venueService.deleteSchedule(reference, scheduleId);
     }
 }

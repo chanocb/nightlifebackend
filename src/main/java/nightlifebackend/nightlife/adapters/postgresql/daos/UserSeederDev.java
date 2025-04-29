@@ -6,7 +6,6 @@ import nightlifebackend.nightlife.adapters.postgresql.entities.VenueEntity;
 import nightlifebackend.nightlife.domain.models.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
@@ -18,9 +17,7 @@ import java.util.Arrays;
 public class UserSeederDev {
     private final DatabaseStarting databaseStarting;
     private final UserRepository userRepository;
-
     private final VenueRepository venueRepository;
-
     private final ReviewRepository reviewRepository;
     private String PASSWORD;
 
@@ -51,7 +48,6 @@ public class UserSeederDev {
         log.warn("------- Initial Load from JAVA -----------");
 
         String pass = new BCryptPasswordEncoder().encode(PASSWORD);
-        //String pass = PASSWORD;
 
         UserEntity[] users = {
                 UserEntity.builder()
@@ -131,7 +127,6 @@ public class UserSeederDev {
 
         this.venueRepository.saveAll(Arrays.asList(venue1, venue2));
 
-        //this.userRepository.saveAll(Arrays.asList(users));
         log.warn("        ------- users seeded");
     }
 }

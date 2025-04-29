@@ -23,8 +23,6 @@ public class VenueRepositoryIT {
     @Test
     public void testFindByReference() {
 
-        // Crear un UserEntity (dueño del venue)
-
         UserEntity owner = new UserEntity();
         owner.setEmail("test@example.com");
         owner.setFirstName("John");
@@ -34,7 +32,6 @@ public class VenueRepositoryIT {
         owner.setRole(Role.OWNER);
         this.userRepository.save(owner);
 
-        // Crear un VenueEntity con el dueño
         VenueEntity venueEntity = new VenueEntity();
         venueEntity.setName("Test Venue");
         venueEntity.setPhone("123456789");
@@ -42,15 +39,11 @@ public class VenueRepositoryIT {
         venueEntity.setLGTBFriendly(true);
         venueEntity.setOwner(owner);
 
-        // Guardamos el VenueEntity
         VenueEntity savedVenueEntity = this.venueRepository.save(venueEntity);
 
-
-        // Buscar el VenueEntity por la referencia
         VenueEntity foundVenueEntity = this.venueRepository.findByReference(savedVenueEntity.getReference())
                 .orElseThrow(() -> new RuntimeException("Venue no encontrado"));
 
-        // Then
         assertEquals(savedVenueEntity.getReference(), foundVenueEntity.getReference());
         assertEquals(savedVenueEntity.getName(), foundVenueEntity.getName());
         assertEquals(savedVenueEntity.getPhone(), foundVenueEntity.getPhone());

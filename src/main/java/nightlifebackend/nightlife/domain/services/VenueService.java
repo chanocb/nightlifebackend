@@ -95,7 +95,6 @@ public class VenueService {
             throw new AccessDeniedException("You are not authorized to update this venue");
         }
 
-        // Verificar que no haya días duplicados
         Set<DayOfWeek> days = schedules.stream()
                 .map(Schedule::getDayOfWeek)
                 .collect(Collectors.toSet());
@@ -105,5 +104,50 @@ public class VenueService {
         }
 
         return venuePersistence.createSchedules(reference, schedules);
+    }
+
+    public Schedule getSchedule(String reference, String scheduleId) {
+        Venue venue = this.findByReference(reference);
+        if (venue == null) {
+            throw new NoSuchElementException("Venue not found with reference: " + reference);
+        }
+        return venue.getSchedules().stream()
+                .filter(s -> s.getReference() != null && s.getReference().toString().equals(scheduleId))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Schedule not found with id: " + scheduleId));
+    }
+
+    public Schedule updateSchedule(String reference, String scheduleId, Schedule schedule) {
+        Venue venue = this.findByReference(reference);
+        if (venue == null) {
+            throw new NoSuchElementException("Venue not found with reference: " + reference);
+        }
+        List<Schedule> schedules = venue.getSchedules();
+        boolean updated = false;
+        for (int i = 0; i < schedules.size(); i++) {
+            Schedule s = schedules.get(i);
+            if (s.getReference() != null && s.getReference().toString().equals(scheduleId)) {
+                schedule.setReference(s.getReference());
+                schedules.set(i, schedule);
+                updated = true;
+                break;
+            }
+        }
+        if (!updated) {
+            throw new NoSuchElementException("Schedule not found with id: " + scheduleId);
+        }
+        venue.setSchedules(schedules);
+        this.venuePersistence.update(reference, venue);
+        return schedule;
+    }
+
+    public void deleteSchedule(String reference, String scheduleId) {
+        Venue venue = this.findByReference(reference);
+        if (venue != null) {
+            List<Schedule> schedules = venue.getSchedules();
+            schedules.removeIf(s -> s.getReference() != null && s.getReference().toString().equals(scheduleId));
+            venue.setSchedules(schedules);
+            this.venuePersistence.update(reference, venue);
+        }
     }
 }

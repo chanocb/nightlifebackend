@@ -14,11 +14,11 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Builder
-@Data //@ToString, @EqualsAndHashCode, @Getter, @Setter, @RequiredArgsConstructor
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "nightlifeUser") // conflict with user table
+@Table(name = "nightlifeUser")
 public class UserEntity {
 
     @Id
@@ -36,7 +36,6 @@ public class UserEntity {
 
     public UserEntity(User user) {
         BeanUtils.copyProperties(user, this);
-
     }
 
     public User toUser() {

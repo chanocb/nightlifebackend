@@ -30,12 +30,10 @@ public class ReviewService {
         return this.reviewPersistence.findByVenueReference(reference);
     }
 
-    //buscar por referencia de review
     public Review findByReference(String reference) {
         return this.reviewPersistence.findByReference(reference);
     }
 
-    //borrar review por referencia
     public void deleteByReference(String reference) {
         String userEmail = jwtService.getAuthenticatedUserEmail();
         Review review = this.reviewPersistence.findByReference(reference);

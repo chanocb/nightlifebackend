@@ -10,8 +10,7 @@ import org.springframework.beans.BeanUtils;
 
 import java.util.UUID;
 
-@Builder
-@Data //@ToString, @EqualsAndHashCode, @Getter, @Setter, @RequiredArgsConstructor
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity

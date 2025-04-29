@@ -39,20 +39,14 @@ public class JwtServiceIT {
 
     @Test
     void testGetAuthenticatedUserEmail_AuthenticationNull_ThrowsException() {
-        // Configurar SecurityContextHolder con autenticación nula
         SecurityContextHolder.getContext().setAuthentication(null);
-
-        // Verificar que se lanza la excepción AccessDeniedException
         assertThrows(AccessDeniedException.class, () -> jwtService.getAuthenticatedUserEmail());
     }
 
     @Test
     void testGetAuthenticatedUserEmail_AuthenticationNotAuthenticated_ThrowsException() {
-        // Configurar SecurityContextHolder con autenticación no autenticada
         Authentication authentication = new UsernamePasswordAuthenticationToken(null, null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        // Verificar que se lanza la excepción AccessDeniedException
         assertThrows(AccessDeniedException.class, () -> jwtService.getAuthenticatedUserEmail());
     }
 }
