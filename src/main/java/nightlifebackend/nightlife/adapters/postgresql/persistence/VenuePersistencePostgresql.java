@@ -1,19 +1,15 @@
 package nightlifebackend.nightlife.adapters.postgresql.persistence;
 
+import nightlifebackend.nightlife.adapters.postgresql.daos.EventRepository;
+import nightlifebackend.nightlife.adapters.postgresql.daos.ReviewRepository;
 import nightlifebackend.nightlife.adapters.postgresql.daos.UserRepository;
 import nightlifebackend.nightlife.adapters.postgresql.daos.VenueRepository;
-import nightlifebackend.nightlife.adapters.postgresql.entities.CoordinateEntity;
-import nightlifebackend.nightlife.adapters.postgresql.entities.ProductEntity;
-import nightlifebackend.nightlife.adapters.postgresql.entities.ScheduleEntity;
-import nightlifebackend.nightlife.adapters.postgresql.entities.UserEntity;
-import nightlifebackend.nightlife.adapters.postgresql.entities.VenueEntity;
+import nightlifebackend.nightlife.adapters.postgresql.entities.*;
 import nightlifebackend.nightlife.domain.models.Music;
 import nightlifebackend.nightlife.domain.models.Product;
 import nightlifebackend.nightlife.domain.models.Schedule;
 import nightlifebackend.nightlife.domain.models.Venue;
 import nightlifebackend.nightlife.domain.persistence_ports.VenuePersistence;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -24,11 +20,17 @@ import java.util.stream.Collectors;
 public class VenuePersistencePostgresql implements VenuePersistence {
 
     private final VenueRepository venueRepository;
+
+    private final ReviewRepository reviewRepository;
+
+    private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public VenuePersistencePostgresql(VenueRepository venueRepository, UserRepository userRepository) {
+    public VenuePersistencePostgresql(VenueRepository venueRepository, ReviewRepository reviewRepository, EventRepository eventRepository, UserRepository userRepository) {
         this.venueRepository = venueRepository;
+        this.reviewRepository = reviewRepository;
+        this.eventRepository = eventRepository;
         this.userRepository = userRepository;
     }
 
@@ -115,6 +117,14 @@ public class VenuePersistencePostgresql implements VenuePersistence {
         VenueEntity existingVenueEntity = this.venueRepository
                 .findByReference(UUID.fromString(reference))
                 .orElseThrow(() -> new RuntimeException("Local no encontrado con referencia: " + reference));
+        List<ReviewEntity> reviewEntityList = this.reviewRepository.findByVenueReference(existingVenueEntity.getReference());
+        for(ReviewEntity reviewEntity : reviewEntityList){
+            this.reviewRepository.delete(reviewEntity);
+        }
+        List<EventEntity> eventEntityList = this.eventRepository.findByVenueReference(existingVenueEntity.getReference());
+        for(EventEntity eventEntity : eventEntityList){
+            this.eventRepository.delete(eventEntity);
+        }
         this.venueRepository.delete(existingVenueEntity);
     }
 
