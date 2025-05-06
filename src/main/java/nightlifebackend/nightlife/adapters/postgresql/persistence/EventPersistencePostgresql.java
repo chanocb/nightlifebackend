@@ -80,21 +80,13 @@ public class EventPersistencePostgresql implements EventPersistence {
         EventEntity eventEntity = this.eventRepository
                 .findByReference(UUID.fromString(reference))
                 .orElseThrow(() -> new RuntimeException("Event not found with reference: " + reference));
-        if (event.getName() != null) {
-            eventEntity.setName(event.getName());
-        }
-        if (event.getDescription() != null) {
-            eventEntity.setDescription(event.getDescription());
-        }
-        if (event.getDateTime() != null) {
-            eventEntity.setDateTime(event.getDateTime());
-        }
-        if (event.getVenue() != null) {
-            VenueEntity venueEntity = this.venueRepository
-                    .findByReference(event.getVenue().getReference())
-                    .orElseThrow(() -> new RuntimeException("Venue not found with reference: " + event.getVenue().getReference()));
-            eventEntity.setVenue(venueEntity);
-        }
+        eventEntity.setName(event.getName());
+        eventEntity.setDescription(event.getDescription());
+        eventEntity.setDateTime(event.getDateTime());
+        VenueEntity venueEntity = this.venueRepository
+                .findByReference(event.getVenue().getReference())
+                .orElseThrow(() -> new RuntimeException("Venue not found with reference: " + event.getVenue().getReference()));
+        eventEntity.setVenue(venueEntity);
         return this.eventRepository.save(eventEntity).toEvent();
     }
 }
