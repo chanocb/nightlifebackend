@@ -36,4 +36,8 @@ public class EventService {
     public void delete(String reference) {
         eventPersistence.deleteByReference(reference);
     }
+
+    public Event update(String reference, Event event) {
+        return this.eventPersistence.update(reference, event);
+    }
 }

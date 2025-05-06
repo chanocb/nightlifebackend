@@ -47,5 +47,9 @@ public class EventResource {
         this.eventService.delete(reference);
     }
 
+    @PutMapping("/{reference}")
+    public Event updateEvent(@PathVariable String reference, @Valid @RequestBody Event event) {
+        return this.eventService.update(reference, event);
+    }
 
 }

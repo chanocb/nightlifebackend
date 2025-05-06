@@ -180,6 +180,52 @@ public class EventResourceIT {
                 .expectStatus().isOk();
     }
 
+    @Test
+    void testUpdateEvent() {
+        User owner = createUser("owner6001@example.com", Role.OWNER);
+        Venue venue = createVenue("example6", owner);
+        Event event = createEvent("Event Update Test", "Description for update test", LocalDateTime.of(2027, Month.FEBRUARY, 15, 20, 0), venue);
+
+        EntityExchangeResult<List<Event>> result = this.restClientTestService.loginClient(webTestClient)
+                .get()
+                .uri(EVENTS + "/name/" + event.getName())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Event.class)
+                .returnResult();
+        EntityExchangeResult<List<Venue>> result1 = this.restClientTestService.loginClient(webTestClient)
+                .get()
+                .uri(VENUES + "/name/" + venue.getName())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(Venue.class)
+                .returnResult();
+
+        Event createdEvent = result.getResponseBody().get(0);
+        Venue createdVenue = result1.getResponseBody().get(0);
+
+        Event updatedEvent = Event.builder()
+                .name("Updated Event Name")
+                .description("Updated Description")
+                .dateTime(LocalDateTime.of(2027, Month.MARCH, 10, 18, 0))
+                .venue(result1.getResponseBody().get(0))
+                .build();
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .put()
+                .uri(EVENTS + "/" + createdEvent.getReference())
+                .body(BodyInserters.fromValue(updatedEvent))
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Event.class)
+                .value(eventResponse -> {
+                    assertEquals("Updated Event Name", eventResponse.getName());
+                    assertEquals("Updated Description", eventResponse.getDescription());
+                    assertEquals(LocalDateTime.of(2027, Month.MARCH, 10, 18, 0), eventResponse.getDateTime());
+                    assertEquals(createdVenue.getReference(), eventResponse.getVenue().getReference());
+                });
+    }
+
 
 
 
