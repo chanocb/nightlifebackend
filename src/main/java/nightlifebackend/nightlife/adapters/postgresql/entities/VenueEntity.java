@@ -92,7 +92,13 @@ public class VenueEntity {
 
     public Venue toVenue() {
         Venue venue = new Venue();
-        BeanUtils.copyProperties(this, venue);
+        venue.setReference(this.reference);
+        venue.setName(this.name);
+        venue.setPhone(this.phone);
+        venue.setLGTBFriendly(this.LGTBFriendly);
+        venue.setInstagram(this.instagram);
+        venue.setImageUrl(this.imageUrl);
+        venue.setMusicGenres(this.musicGenres);
         if (this.owner != null) {
             venue.setOwner(this.owner.toUser());
         }

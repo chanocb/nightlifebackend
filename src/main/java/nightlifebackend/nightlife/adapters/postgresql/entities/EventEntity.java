@@ -1,15 +1,13 @@
 package nightlifebackend.nightlife.adapters.postgresql.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import nightlifebackend.nightlife.domain.models.Event;
 import nightlifebackend.nightlife.domain.models.User;
 import org.springframework.beans.BeanUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -31,6 +29,10 @@ public class EventEntity {
     @JoinColumn(name = "venue_id", nullable = false)
     private VenueEntity venue;
 
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    private List<AccessTypeEntity> accessTypes;
+
     public EventEntity(Event event) {
         BeanUtils.copyProperties(event, this);
 
@@ -38,8 +40,14 @@ public class EventEntity {
 
     public Event toEvent() {
         Event event = new Event();
-        BeanUtils.copyProperties(this, event);
-        event.setVenue(this.venue.toVenue());
+        event.setReference(this.reference);
+        event.setName(this.name);
+        event.setDescription(this.description);
+        event.setDateTime(this.dateTime);
+        event.setVenue(this.venue != null ? this.venue.toVenue() : null);
+        event.setAccessTypes(this.accessTypes != null
+                ? this.accessTypes.stream().map(AccessTypeEntity::toAccessType).toList()
+                : List.of());
         return event;
     }
 }

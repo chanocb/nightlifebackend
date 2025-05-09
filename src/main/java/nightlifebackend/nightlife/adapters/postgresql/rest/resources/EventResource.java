@@ -52,4 +52,9 @@ public class EventResource {
         return this.eventService.update(reference, event);
     }
 
+    @GetMapping("/{reference}/access-types")
+    public List<nightlifebackend.nightlife.domain.models.AccessType> getAccessTypeByEventReference(@PathVariable String reference) {
+        return this.eventService.getAccessTypeByEventReference(reference);
+    }
+
 }

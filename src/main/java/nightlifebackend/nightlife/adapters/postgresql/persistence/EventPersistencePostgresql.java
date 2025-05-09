@@ -5,6 +5,7 @@ import nightlifebackend.nightlife.adapters.postgresql.daos.UserRepository;
 import nightlifebackend.nightlife.adapters.postgresql.daos.VenueRepository;
 import nightlifebackend.nightlife.adapters.postgresql.entities.EventEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.VenueEntity;
+import nightlifebackend.nightlife.domain.models.AccessType;
 import nightlifebackend.nightlife.domain.models.Event;
 import nightlifebackend.nightlife.domain.persistence_ports.EventPersistence;
 import nightlifebackend.nightlife.domain.persistence_ports.ReviewPersistence;
@@ -88,5 +89,21 @@ public class EventPersistencePostgresql implements EventPersistence {
                 .orElseThrow(() -> new RuntimeException("Venue not found with reference: " + event.getVenue().getReference()));
         eventEntity.setVenue(venueEntity);
         return this.eventRepository.save(eventEntity).toEvent();
+    }
+
+    @Override
+    public List<AccessType> getAccessTypeByEventReference(String reference) {
+        EventEntity eventEntity = this.eventRepository
+                .findByReference(UUID.fromString(reference))
+                .orElseThrow(() -> new RuntimeException("Event not found with reference: " + reference));
+        return eventEntity.getAccessTypes() != null
+                ? eventEntity.getAccessTypes()
+                .stream()
+                .map(accessTypeEntity -> {
+                    // Ensure AccessTypeEntity is properly imported and defined
+                    return accessTypeEntity.toAccessType();
+                })
+                .toList()
+                : List.of(); // Return an empty list instead of null
     }
 }

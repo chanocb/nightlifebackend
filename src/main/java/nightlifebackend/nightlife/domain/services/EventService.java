@@ -1,5 +1,6 @@
 package nightlifebackend.nightlife.domain.services;
 
+import nightlifebackend.nightlife.domain.models.AccessType;
 import nightlifebackend.nightlife.domain.models.Event;
 import nightlifebackend.nightlife.domain.persistence_ports.EventPersistence;
 import nightlifebackend.nightlife.domain.persistence_ports.VenuePersistence;
@@ -39,5 +40,9 @@ public class EventService {
 
     public Event update(String reference, Event event) {
         return this.eventPersistence.update(reference, event);
+    }
+
+    public List<AccessType> getAccessTypeByEventReference(String reference) {
+        return eventPersistence.getAccessTypeByEventReference(reference);
     }
 }

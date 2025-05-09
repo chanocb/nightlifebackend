@@ -1,5 +1,6 @@
 package nightlifebackend.nightlife.domain.persistence_ports;
 
+import nightlifebackend.nightlife.domain.models.AccessType;
 import nightlifebackend.nightlife.domain.models.Event;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,6 @@ public interface EventPersistence {
     List<Event> findByName(String name);
 
     Event update(String reference, Event event);
+
+    List<AccessType> getAccessTypeByEventReference(String reference);
 }
