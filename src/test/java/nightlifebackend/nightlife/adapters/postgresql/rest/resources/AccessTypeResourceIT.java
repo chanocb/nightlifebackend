@@ -177,6 +177,7 @@ public class AccessTypeResourceIT {
                 .title("Updated Regular")
                 .price(75.0)
                 .capacityMax(120)
+                .event(createdEvent)
                 .build();
 
         this.restClientTestService.loginOwner(this.webTestClient)
@@ -190,6 +191,7 @@ public class AccessTypeResourceIT {
                     assertEquals("Updated Regular", accessTypeResponse.getTitle());
                     assertEquals(75.0, accessTypeResponse.getPrice());
                     assertEquals(120, accessTypeResponse.getCapacityMax());
+                    assertEquals(createdEvent.getReference(), accessTypeResponse.getEvent().getReference());
                 });
     }
 

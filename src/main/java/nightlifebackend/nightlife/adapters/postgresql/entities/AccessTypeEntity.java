@@ -1,11 +1,9 @@
 package nightlifebackend.nightlife.adapters.postgresql.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import nightlifebackend.nightlife.domain.models.AccessType;
+import nightlifebackend.nightlife.domain.models.Event;
 import org.springframework.beans.BeanUtils;
 
 import java.time.LocalTime;
@@ -38,7 +36,13 @@ public class AccessTypeEntity {
 
     public AccessType toAccessType(){
         AccessType accessType = new AccessType();
-        BeanUtils.copyProperties(this, accessType);
+        BeanUtils.copyProperties(this, accessType, "event");
+        if (this.event != null) {
+            Event event = new Event();
+            BeanUtils.copyProperties(this.event, event, "accessTypes");
+            event.setVenue(this.event.getVenue() != null ? this.event.getVenue().toVenue() : null);
+            accessType.setEvent(event);
+        }
         return accessType;
     }
 }
