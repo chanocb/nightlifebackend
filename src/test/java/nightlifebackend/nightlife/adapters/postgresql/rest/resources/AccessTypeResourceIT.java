@@ -1,5 +1,6 @@
 package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
+import nightlifebackend.nightlife.adapters.postgresql.entities.AccessTypeEntity;
 import nightlifebackend.nightlife.domain.models.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.Even
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.UserResource.USERS;
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.VenueResource.VENUES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ApiTestConfig
 public class AccessTypeResourceIT {
@@ -230,5 +232,16 @@ public class AccessTypeResourceIT {
                 .expectStatus().isOk();
 
 
+    }
+
+    @Test
+    void testToAccessTypeWithNullEvent() {
+        AccessTypeEntity entity = new AccessTypeEntity();
+        entity.setTitle("General");
+        entity.setPrice(30.0);
+
+        AccessType result = entity.toAccessType();
+        assertEquals("General", result.getTitle());
+        assertNull(result.getEvent());
     }
 }
