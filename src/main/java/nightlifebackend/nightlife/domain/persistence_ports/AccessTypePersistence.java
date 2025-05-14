@@ -1,10 +1,10 @@
 package nightlifebackend.nightlife.domain.persistence_ports;
 
 import nightlifebackend.nightlife.domain.models.AccessType;
-import nightlifebackend.nightlife.domain.models.Event;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public interface AccessTypePersistence {
@@ -16,6 +16,8 @@ public interface AccessTypePersistence {
     AccessType update(String reference, AccessType accessType);
 
     List<AccessType> findByTitle(String title);
+
+    int countReservationsByAccessTypeReference(UUID reference);
 
 
 

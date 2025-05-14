@@ -3,7 +3,6 @@ package nightlifebackend.nightlife.domain.services;
 import nightlifebackend.nightlife.domain.models.AccessType;
 import nightlifebackend.nightlife.domain.models.Event;
 import nightlifebackend.nightlife.domain.persistence_ports.EventPersistence;
-import nightlifebackend.nightlife.domain.persistence_ports.VenuePersistence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,5 +43,9 @@ public class EventService {
 
     public List<AccessType> getAccessTypeByEventReference(String reference) {
         return eventPersistence.getAccessTypeByEventReference(reference);
+    }
+
+    public Event findEventByAccessType(String accessTypeReference) {
+        return this.eventPersistence.findEventByAccessType(accessTypeReference);
     }
 }

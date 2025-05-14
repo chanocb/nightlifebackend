@@ -70,4 +70,10 @@ public class AccessTypePersistencePostgresql implements AccessTypePersistence {
                 .map(AccessTypeEntity::toAccessType)
                 .toList();
     }
+
+    @Override
+    public int countReservationsByAccessTypeReference(UUID reference) {
+        return this.accessTypeRepository.countReservationsByAccessTypeReference(reference);
+    }
+
 }

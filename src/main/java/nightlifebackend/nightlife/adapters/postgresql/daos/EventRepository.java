@@ -20,6 +20,8 @@ public interface EventRepository extends JpaRepository<EventEntity, UUID> {
     @Query("SELECT e FROM EventEntity e WHERE e.name = ?1")
     List<EventEntity> findByName(String name);
 
+    @Query("SELECT e FROM EventEntity e JOIN e.accessTypes a WHERE a.reference = ?1")
+    Optional<EventEntity> findEventByAccessType(UUID accessTypeReference);
 
 
 }

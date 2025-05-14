@@ -22,4 +22,6 @@ public interface EventPersistence {
     Event update(String reference, Event event);
 
     List<AccessType> getAccessTypeByEventReference(String reference);
+
+    Event findEventByAccessType(String accessTypeReference);
 }

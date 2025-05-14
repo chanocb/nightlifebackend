@@ -21,17 +21,22 @@ public class UserSeederDev {
     private final ReviewRepository reviewRepository;
 
     private final EventRepository eventRepository;
+    private final AccessTypeRepository accessTypeRepository;
+    private final ReservationRepository reservationRepository;
     private String PASSWORD;
 
     @Autowired
-    public UserSeederDev(UserRepository userRepository, DatabaseStarting databaseStarting, VenueRepository venueRepository, @Value("${nightlife.password}") String PASSWORD, ReviewRepository reviewRepository, EventRepository eventRepository) {
+    public UserSeederDev(UserRepository userRepository, DatabaseStarting databaseStarting, VenueRepository venueRepository, @Value("${nightlife.password}") String PASSWORD, ReviewRepository reviewRepository, EventRepository eventRepository, AccessTypeRepository accessTypeRepository, ReservationRepository reservationRepository) {
         this.userRepository = userRepository;
         this.databaseStarting = databaseStarting;
         this.venueRepository = venueRepository;
         this.PASSWORD = PASSWORD;
         this.reviewRepository = reviewRepository;
         this.eventRepository = eventRepository;
+        this.accessTypeRepository = accessTypeRepository;
+        this.reservationRepository = reservationRepository;
         this.deleteAllAndInitializeAndSeedDataBase();
+
     }
 
     public void deleteAllAndInitializeAndSeedDataBase() {
@@ -40,6 +45,8 @@ public class UserSeederDev {
     }
 
     public void deleteAllAndInitialize() {
+        this.reservationRepository.deleteAll();
+        this.accessTypeRepository.deleteAll();
         this.eventRepository.deleteAll();
         this.reviewRepository.deleteAll();
         this.venueRepository.deleteAll();

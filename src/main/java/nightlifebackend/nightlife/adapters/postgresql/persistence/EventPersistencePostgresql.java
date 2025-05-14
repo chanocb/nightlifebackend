@@ -1,14 +1,12 @@
 package nightlifebackend.nightlife.adapters.postgresql.persistence;
 
 import nightlifebackend.nightlife.adapters.postgresql.daos.EventRepository;
-import nightlifebackend.nightlife.adapters.postgresql.daos.UserRepository;
 import nightlifebackend.nightlife.adapters.postgresql.daos.VenueRepository;
 import nightlifebackend.nightlife.adapters.postgresql.entities.EventEntity;
 import nightlifebackend.nightlife.adapters.postgresql.entities.VenueEntity;
 import nightlifebackend.nightlife.domain.models.AccessType;
 import nightlifebackend.nightlife.domain.models.Event;
 import nightlifebackend.nightlife.domain.persistence_ports.EventPersistence;
-import nightlifebackend.nightlife.domain.persistence_ports.ReviewPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -30,7 +28,6 @@ public class EventPersistencePostgresql implements EventPersistence {
     @Override
     public Event create(Event event) {
         if(event.getVenue() != null){
-            // Assuming VenueEntity and VenueRepository are defined similarly to UserEntity and UserRepository
             EventEntity eventEntity = new EventEntity(event);
             VenueEntity venueEntity = this.venueRepository
                     .findByReference(event.getVenue().getReference())
@@ -100,10 +97,23 @@ public class EventPersistencePostgresql implements EventPersistence {
                 ? eventEntity.getAccessTypes()
                 .stream()
                 .map(accessTypeEntity -> {
-                    // Ensure AccessTypeEntity is properly imported and defined
                     return accessTypeEntity.toAccessType();
                 })
                 .toList()
-                : List.of(); // Return an empty list instead of null
+                : List.of();
     }
+
+    @Override
+    public Event findEventByAccessType(String accessTypeReference) {
+        EventEntity eventEntity = this.eventRepository
+                .findEventByAccessType(UUID.fromString(accessTypeReference))
+                .orElseThrow(() -> new RuntimeException("Event not found with access type: " + accessTypeReference));
+        if (eventEntity != null) {
+            return eventEntity.toEvent();
+        }
+
+        return null;
+    }
+
+
 }

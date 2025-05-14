@@ -14,4 +14,7 @@ public interface AccessTypeRepository extends JpaRepository<AccessTypeEntity, UU
 
     @Query("SELECT at FROM AccessTypeEntity at WHERE at.title = ?1")
     List<AccessTypeEntity> findByTitle(String title);
+    //get number of reservations in access type
+    @Query("SELECT COUNT(r) FROM ReservationEntity r WHERE r.accessType.reference = ?1")
+    int countReservationsByAccessTypeReference(UUID reference);
 }

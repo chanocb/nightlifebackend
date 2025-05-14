@@ -2,6 +2,7 @@ package nightlifebackend.nightlife.domain.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,7 +29,7 @@ public class Event {
     @NotBlank(message = "The description cannot be empty.")
     private String description;
     @NotNull(message = "Date and time must not be null")
-    @Future(message = "Date and time must be in the future")
+    @FutureOrPresent(message = "Date and time must be in the future")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime dateTime;
     @JsonProperty("venue")
