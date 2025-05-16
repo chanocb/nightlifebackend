@@ -21,6 +21,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Repository("reservationPersistence")
 public class ReservationPersistencePostgresql implements ReservationPersistence {
@@ -76,7 +77,7 @@ public class ReservationPersistencePostgresql implements ReservationPersistence 
                 this.reservationRepository.save(reservationEntity);
                 return reservationEntity.toReservation();
             } else {
-                throw new RuntimeException("Reservation already validated");
+                throw new NoSuchElementException("Reservation already validated");
             }
         }
         return null;

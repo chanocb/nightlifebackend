@@ -41,9 +41,9 @@ public class ReservationEntity {
 
     public Reservation toReservation() {
         Reservation reservation = new Reservation();
-        reservation.setUser(this.user != null ? this.user.toUser() : null);
-        reservation.setAccessType(this.accessType != null ? this.accessType.toAccessType() : null);
-        reservation.setQrCode(this.qrCode != null ? Base64.getEncoder().encodeToString(this.qrCode) : null);
+        reservation.setUser(this.user.toUser());
+        reservation.setAccessType(this.accessType.toAccessType());
+        reservation.setQrCode(Base64.getEncoder().encodeToString(this.qrCode));
         reservation.setReference(this.reference);
         reservation.setFinalPrice(this.finalPrice);
         reservation.setPurchasedDate(this.purchasedDate);

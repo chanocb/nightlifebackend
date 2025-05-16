@@ -10,10 +10,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.AccessTypeResource.ACCESS_TYPES;
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.EventResource.EVENTS;
-import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.ReviewResource.REVIEWS;
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.UserResource.USERS;
 import static nightlifebackend.nightlife.adapters.postgresql.rest.resources.VenueResource.VENUES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -80,12 +81,12 @@ public class EventResourceIT {
                 .venue(venue_created)
                 .build();
 
-        this.restClientTestService.loginOwner(this.webTestClient)
+        Event event_created = this.restClientTestService.loginOwner(this.webTestClient)
                 .post()
                 .uri(EVENTS)
                 .body(BodyInserters.fromValue(event))
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isOk().returnResult(Event.class).getResponseBody().blockFirst();;
 
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
@@ -97,12 +98,30 @@ public class EventResourceIT {
                     int lastIndex = events.size() - 1;
                     assertEquals(name, events.get(lastIndex).getName());
                     assertEquals(description, events.get(lastIndex).getDescription());
-                    assertEquals(dateTime, events.get(lastIndex).getDateTime());
+                    assertEquals(dateTime.truncatedTo(ChronoUnit.MILLIS), events.get(lastIndex).getDateTime().truncatedTo(ChronoUnit.MILLIS));
                     assertEquals(venue_created.getReference(), events.get(lastIndex).getVenue().getReference());
                 });
 
 
-        return event;
+        return event_created;
+    }
+
+    private AccessType createAccessType(String title, double price, int maxCapacity, Event event) {
+        AccessType accessType = AccessType.builder()
+                .title(title)
+                .price(price)
+                .capacityMax(maxCapacity)
+                .event(event)
+                .build();
+
+        AccessType accessType_created = this.restClientTestService.loginOwner(this.webTestClient)
+                .post()
+                .uri(ACCESS_TYPES)
+                .body(BodyInserters.fromValue(accessType))
+                .exchange()
+                .expectStatus().isOk().returnResult(AccessType.class).getResponseBody().blockFirst();;
+
+        return accessType_created;
     }
 
 
@@ -223,6 +242,26 @@ public class EventResourceIT {
                     assertEquals("Updated Description", eventResponse.getDescription());
                     assertEquals(LocalDateTime.of(2027, Month.MARCH, 10, 18, 0), eventResponse.getDateTime());
                     assertEquals(createdVenue.getReference(), eventResponse.getVenue().getReference());
+                });
+    }
+
+    @Test
+    void testGetAccessTypeByEventReference() {
+        User owner = createUser("owner6002341@example.com", Role.OWNER);
+        Venue venue = createVenue("example336", owner);
+        Event event = createEvent("Event Update Test", "Description for update test", LocalDateTime.of(2027, Month.FEBRUARY, 15, 20, 0), venue);
+        AccessType accessType = createAccessType("VIP", 100.0, 50, event);
+
+
+
+        this.restClientTestService.loginOwner(this.webTestClient)
+                .get()
+                .uri(EVENTS + "/" + event.getReference() + "/access-types")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBodyList(AccessType.class)
+                .value(accessTypeList -> {
+                    assertEquals(1, accessTypeList.size());
                 });
     }
 

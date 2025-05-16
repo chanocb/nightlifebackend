@@ -1,9 +1,6 @@
 package nightlifebackend.nightlife.adapters.postgresql.rest.resources;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
+import nightlifebackend.nightlife.adapters.postgresql.entities.ReservationStatusEntity;
 import nightlifebackend.nightlife.domain.models.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +8,6 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -46,14 +40,14 @@ public class ReservationResourceIT {
                 .qrCode(null)
                 .build();
 
-        this.webTestClient
+        Reservation reservation_created = this.webTestClient
                 .post()
                 .uri(RESERVATIONS)
                 .body(BodyInserters.fromValue(reservation))
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isOk().returnResult(Reservation.class).getResponseBody().blockFirst();
 
-        return reservation;
+        return reservation_created;
     }
 
     private AccessType createAccessType(String title, double price, int maxCapacity, Event event) {
@@ -64,14 +58,14 @@ public class ReservationResourceIT {
                 .event(event)
                 .build();
 
-        this.restClientTestService.loginOwner(this.webTestClient)
+        AccessType accessType_created = this.restClientTestService.loginOwner(this.webTestClient)
                 .post()
                 .uri(ACCESS_TYPES)
                 .body(BodyInserters.fromValue(accessType))
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isOk().returnResult(AccessType.class).getResponseBody().blockFirst();;
 
-        return accessType;
+        return accessType_created;
     }
 
     private Event createEvent(String name, String description, LocalDateTime dateTime, Venue venue) {
@@ -84,12 +78,12 @@ public class ReservationResourceIT {
                 .venue(venue_created)
                 .build();
 
-        this.restClientTestService.loginOwner(this.webTestClient)
+        Event event_created = this.restClientTestService.loginOwner(this.webTestClient)
                 .post()
                 .uri(EVENTS)
                 .body(BodyInserters.fromValue(event))
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isOk().returnResult(Event.class).getResponseBody().blockFirst();;
 
         this.restClientTestService.loginClient(this.webTestClient)
                 .get()
@@ -106,7 +100,7 @@ public class ReservationResourceIT {
                 });
 
 
-        return event;
+        return event_created;
     }
 
     private Venue createVenue(String name, User owner) {
@@ -160,29 +154,32 @@ public class ReservationResourceIT {
         Venue venue = createVenue("example3", owner);
         Event event = createEvent("exampleEvent", "exampleDescription", LocalDateTime.of(2027, 10, 1, 20, 0), venue);
 
-        EntityExchangeResult<List<Event>> result = this.restClientTestService.loginClient(webTestClient)
-                .get()
-                .uri(EVENTS + "/name/" + event.getName())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(Event.class)
-                .returnResult();
+
+        AccessType accessType = createAccessType("VIP", 100.0, 50, event);
 
 
-        Event createdEvent = result.getResponseBody().get(0);
-        AccessType accessType = createAccessType("VIP", 100.0, 50, createdEvent);
 
-        EntityExchangeResult<List<AccessType>> resultTitle = this.restClientTestService.loginClient(this.webTestClient)
-                .get()
-                .uri(ACCESS_TYPES + "/title/" + accessType.getTitle())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AccessType.class)
-                .returnResult();
+        Reservation reservation = createReservation(accessType, client);
 
-        AccessType createdAccessType = resultTitle.getResponseBody().get(0);
 
-        Reservation reservation = createReservation(createdAccessType, client);
+    }
+
+    @Test
+    void testCreateReservationWithOutCapacity() {
+        User owner = createUser("owner52669@example.com", Role.OWNER);
+        User client = createUser("client34896@example.com", Role.CLIENT);
+        Venue venue = createVenue("example4", owner);
+        Event event = createEvent("exampleEvent2", "exampleDescription", LocalDateTime.of(2027, 10, 1, 20, 0), venue);
+
+
+        AccessType accessType = createAccessType("VIP", 100.0, 1, event);
+
+
+
+        Reservation reservation = createReservation(accessType, client);
+        Reservation reservation2 = createReservation(accessType, client);
+
+        assertEquals(null, reservation2);
 
 
     }
@@ -194,29 +191,11 @@ public class ReservationResourceIT {
         Venue venue = createVenue("example3", owner);
         Event event = createEvent("exampleEvent", "exampleDescription", LocalDateTime.of(2027, 10, 1, 20, 0), venue);
 
-        EntityExchangeResult<List<Event>> result = this.restClientTestService.loginClient(webTestClient)
-                .get()
-                .uri(EVENTS + "/name/" + event.getName())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(Event.class)
-                .returnResult();
+
+        AccessType accessType = createAccessType("VIP", 100.0, 50, event);
 
 
-        Event createdEvent = result.getResponseBody().get(0);
-        AccessType accessType = createAccessType("VIP", 100.0, 50, createdEvent);
-
-        EntityExchangeResult<List<AccessType>> resultTitle = this.restClientTestService.loginClient(this.webTestClient)
-                .get()
-                .uri(ACCESS_TYPES + "/title/" + accessType.getTitle())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AccessType.class)
-                .returnResult();
-
-        AccessType createdAccessType = resultTitle.getResponseBody().get(0);
-
-        Reservation reservation = createReservation(createdAccessType, client);
+        Reservation reservation = createReservation(accessType, client);
 
         this.webTestClient
                 .get()
@@ -231,47 +210,17 @@ public class ReservationResourceIT {
 
     @Test
     void testValidateQrCode() {
-        User owner = createUser("owner123@example.com", Role.OWNER);
-        User client = createUser("client123@example.com", Role.CLIENT);
-        Venue venue = createVenue("TestVenue", owner);
+        User owner = createUser("owner12333@example.com", Role.OWNER);
+        User client = createUser("client123333@example.com", Role.CLIENT);
+        Venue venue = createVenue("TestVenue33", owner);
         Event event = createEvent("TestEvent", "TestDescription", LocalDateTime.now().plusHours(1), venue);
 
-        EntityExchangeResult<List<Event>> result = this.restClientTestService.loginClient(webTestClient)
-                .get()
-                .uri(EVENTS + "/name/" + event.getName())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(Event.class)
-                .returnResult();
-
-
-        Event createdEvent = result.getResponseBody().get(0);
-        AccessType accessType = createAccessType("Standard", 50.0, 100, createdEvent);
-        EntityExchangeResult<List<AccessType>> resultTitle = this.restClientTestService.loginClient(this.webTestClient)
-                .get()
-                .uri(ACCESS_TYPES + "/title/" + accessType.getTitle())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(AccessType.class)
-                .returnResult();
-
-        AccessType createdAccessType = resultTitle.getResponseBody().get(0);
-        Reservation reservation = createReservation(createdAccessType, client);
-
-        EntityExchangeResult<List<Reservation>> resultReser = this.webTestClient
-                .get()
-                .uri(RESERVATIONS + "/" + client.getEmail())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBodyList(Reservation.class)
-                .returnResult();
-
-        Reservation createdReservation = resultReser.getResponseBody().get(0);
-        UUID reference = createdReservation.getReference();
+        AccessType accessType = createAccessType("Standard", 20.0, 100, event);
+        Reservation reservation = createReservation(accessType, client);
 
         this.webTestClient
                 .get()
-                .uri(RESERVATIONS + "/validate/" + reference.toString())
+                .uri(RESERVATIONS + "/validate/" + reservation.getReference().toString())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(Reservation.class)
@@ -279,5 +228,105 @@ public class ReservationResourceIT {
                     assertEquals(reservation.getUser().getEmail(), validatedReservation.getUser().getEmail());
                     assertEquals(reservation.getAccessType().getTitle(), validatedReservation.getAccessType().getTitle());
                 });
+    }
+
+    @Test
+    void testValidateQrCodeWrongDayDate() {
+        User owner = createUser("owner123@example.com", Role.OWNER);
+        User client = createUser("client123@example.com", Role.CLIENT);
+        Venue venue = createVenue("TestVenue", owner);
+        Event event = createEvent("TestEvent", "TestDescription", LocalDateTime.now().plusDays(1), venue);
+
+
+        AccessType accessType = createAccessType("Standard", 50.0, 100, event);
+
+        Reservation reservation = createReservation(accessType, client);
+
+
+
+        this.webTestClient
+                .get()
+                .uri(RESERVATIONS + "/validate/" + reservation.getReference().toString())
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testValidateQrCodeWrongYearDate() {
+        User owner = createUser("owner123232@example.com", Role.OWNER);
+        User client = createUser("client123541@example.com", Role.CLIENT);
+        Venue venue = createVenue("TestVenue", owner);
+        Event event = createEvent("TestEvent", "TestDescription", LocalDateTime.now().plusYears(1), venue);
+
+
+        AccessType accessType = createAccessType("Standard", 50.0, 100, event);
+
+        Reservation reservation = createReservation(accessType, client);
+
+        this.webTestClient
+                .get()
+                .uri(RESERVATIONS + "/validate/" + reservation.getReference().toString())
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testValidateQrCodeWrongReservationStatus() {
+        User owner = createUser("owner1292883@example.com", Role.OWNER);
+        User client = createUser("client122323@example.com", Role.CLIENT);
+        Venue venue = createVenue("TestVenue", owner);
+        Event event = createEvent("TestEvent", "TestDescription", LocalDateTime.now().plusHours(1), venue);
+
+        AccessType accessType = createAccessType("Standard", 50.0, 100, event);
+
+        Reservation reservation = createReservation(accessType, client);
+
+        this.webTestClient
+                .get()
+                .uri(RESERVATIONS + "/validate/" + reservation.getReference().toString())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(Reservation.class)
+                .value(validatedReservation -> {
+                    assertEquals(reservation.getUser().getEmail(), validatedReservation.getUser().getEmail());
+                    assertEquals(reservation.getAccessType().getTitle(), validatedReservation.getAccessType().getTitle());
+                });
+
+        this.webTestClient
+                .get()
+                .uri(RESERVATIONS + "/validate/" + reservation.getReference().toString())
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void testValidateQrCodeWrong() {
+        User owner = createUser("owner12333333@example.com", Role.OWNER);
+        User client = createUser("client121233@example.com", Role.CLIENT);
+        Venue venue = createVenue("TestVenue", owner);
+        Event event = createEvent("TestEvent", "TestDescription", LocalDateTime.now().plusDays(1), venue);
+
+
+        AccessType accessType = createAccessType("Standard", 50.0, 100, event);
+
+        Reservation reservation = createReservation(accessType, client);
+
+        UUID reference = UUID.fromString("12345678-1234-5678-1234-123456789012");
+
+
+        Reservation reservation_validated = this.webTestClient
+                .get()
+                .uri(RESERVATIONS + "/validate/" + reference.toString())
+                .exchange()
+                .expectStatus().isOk().returnResult(Reservation.class).getResponseBody().blockFirst();
+
+        assertEquals(null, reservation_validated);
+    }
+
+    @Test
+    void testOfWithValidPrefix() {
+        assertEquals(ReservationStatusEntity.ASSISTED, ReservationStatusEntity.of("RESERVATION_STATUS_ASSISTED"));
+        assertEquals(ReservationStatusEntity.PENDING, ReservationStatusEntity.of("RESERVATION_STATUS_PENDING"));
+        assertEquals(ReservationStatusEntity.EXPIRED, ReservationStatusEntity.of("RESERVATION_STATUS_EXPIRED"));
     }
 }
