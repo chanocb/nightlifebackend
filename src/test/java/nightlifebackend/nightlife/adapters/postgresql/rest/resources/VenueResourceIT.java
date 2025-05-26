@@ -870,7 +870,7 @@ public class VenueResourceIT {
                 .venue(createdHighRatedVenue)
                 .build();
 
-        this.restClientTestService.loginClient(this.webTestClient)
+        this.restClientTestService.login(client1.getEmail(), this.webTestClient)
                 .post()
                 .uri(ReviewResource.REVIEWS)
                 .body(BodyInserters.fromValue(review1))

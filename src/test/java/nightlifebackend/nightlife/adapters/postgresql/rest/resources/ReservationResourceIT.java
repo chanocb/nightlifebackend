@@ -40,7 +40,7 @@ public class ReservationResourceIT {
                 .qrCode(null)
                 .build();
 
-        Reservation reservation_created = this.webTestClient
+        Reservation reservation_created = this.restClientTestService.login(user.getEmail(), this.webTestClient)
                 .post()
                 .uri(RESERVATIONS)
                 .body(BodyInserters.fromValue(reservation))
@@ -197,7 +197,7 @@ public class ReservationResourceIT {
 
         Reservation reservation = createReservation(accessType, client);
 
-        this.webTestClient
+        this.restClientTestService.login(client.getEmail(), this.webTestClient)
                 .get()
                 .uri(RESERVATIONS + "/" + client.getEmail())
                 .exchange()
@@ -218,7 +218,7 @@ public class ReservationResourceIT {
         AccessType accessType = createAccessType("Standard", 20.0, 100, event);
         Reservation reservation = createReservation(accessType, client);
 
-        this.webTestClient
+        this.restClientTestService.loginOwner(this.webTestClient)
                 .get()
                 .uri(RESERVATIONS + "/validate/" + reservation.getReference().toString())
                 .exchange()
@@ -244,7 +244,7 @@ public class ReservationResourceIT {
 
 
 
-        this.webTestClient
+        this.restClientTestService.loginOwner(this.webTestClient)
                 .get()
                 .uri(RESERVATIONS + "/validate/" + reservation.getReference().toString())
                 .exchange()
@@ -263,7 +263,7 @@ public class ReservationResourceIT {
 
         Reservation reservation = createReservation(accessType, client);
 
-        this.webTestClient
+        this.restClientTestService.loginOwner(this.webTestClient)
                 .get()
                 .uri(RESERVATIONS + "/validate/" + reservation.getReference().toString())
                 .exchange()
@@ -281,7 +281,7 @@ public class ReservationResourceIT {
 
         Reservation reservation = createReservation(accessType, client);
 
-        this.webTestClient
+        this.restClientTestService.loginOwner(this.webTestClient)
                 .get()
                 .uri(RESERVATIONS + "/validate/" + reservation.getReference().toString())
                 .exchange()
@@ -292,7 +292,7 @@ public class ReservationResourceIT {
                     assertEquals(reservation.getAccessType().getTitle(), validatedReservation.getAccessType().getTitle());
                 });
 
-        this.webTestClient
+        this.restClientTestService.loginOwner(this.webTestClient)
                 .get()
                 .uri(RESERVATIONS + "/validate/" + reservation.getReference().toString())
                 .exchange()
@@ -314,7 +314,7 @@ public class ReservationResourceIT {
         UUID reference = UUID.fromString("12345678-1234-5678-1234-123456789012");
 
 
-        Reservation reservation_validated = this.webTestClient
+        Reservation reservation_validated = this.restClientTestService.loginOwner(this.webTestClient)
                 .get()
                 .uri(RESERVATIONS + "/validate/" + reference.toString())
                 .exchange()

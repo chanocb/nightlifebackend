@@ -81,7 +81,7 @@ public class ReviewResourceIT {
                 .venue(venue_created)
                 .build();
 
-        this.restClientTestService.loginClient(this.webTestClient)
+        this.restClientTestService.login(client.getEmail(), this.webTestClient)
                 .post()
                 .uri(REVIEWS)
                 .body(BodyInserters.fromValue(review))
@@ -183,7 +183,7 @@ public class ReviewResourceIT {
                     assertEquals(review_created.getVenue().getReference(), r.getVenue().getReference());
                 });
 
-        this.restClientTestService.loginClient(this.webTestClient)
+        this.restClientTestService.login(owner.getEmail(), this.webTestClient)
                 .delete()
                 .uri(REVIEWS + "/" + review_created.getReference())
                 .exchange()
